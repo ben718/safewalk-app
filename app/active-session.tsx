@@ -1,8 +1,9 @@
-import { ScrollView, View, Text, Pressable, Alert } from 'react-native';
+import { Alert, Pressable, ScrollView, Text, View } from 'react-native';
 import { BubbleBackground } from '@/components/ui/bubble-background';
 import { GlassCard } from '@/components/ui/glass-card';
 import { BigSuccessButton } from '@/components/ui/big-success-button';
 import { CushionPillButton } from '@/components/ui/cushion-pill-button';
+import { ScreenTransition } from '@/components/ui/screen-transition';
 import { useApp } from '@/lib/context/app-context';
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
@@ -100,71 +101,81 @@ export default function ActiveSessionScreen() {
         }}
       >
         {/* Header */}
-        <View className="gap-1 mb-3">
-          <Text className="text-4xl font-bold text-foreground">
-            Sortie en cours
-          </Text>
-        </View>
+        <ScreenTransition delay={0} duration={350}>
+          <View className="gap-1 mb-3">
+            <Text className="text-4xl font-bold text-foreground">
+              Sortie en cours
+            </Text>
+          </View>
+        </ScreenTransition>
 
         {/* Timer Card */}
-        <GlassCard
-          className="gap-2 mb-4"
-          style={{
-            backgroundColor: isOverdue ? 'rgba(255, 77, 77, 0.08)' : 'rgba(255, 255, 255, 0.94)',
-            paddingHorizontal: 16,
-            paddingVertical: 14,
-          }}
-        >
-          <Text className="text-sm font-semibold text-muted">
-            Temps restant
-          </Text>
-          <Text
-            className="text-6xl font-bold text-center"
+        <ScreenTransition delay={100} duration={350}>
+          <GlassCard
+            className="gap-2 mb-4"
             style={{
-              color: isOverdue ? '#FF4D4D' : '#6C63FF',
-              lineHeight: 72,
+              backgroundColor: isOverdue ? 'rgba(255, 77, 77, 0.08)' : 'rgba(255, 255, 255, 0.94)',
+              paddingHorizontal: 16,
+              paddingVertical: 14,
             }}
           >
-            {isOverdue ? 'En retard' : remainingTime}
-          </Text>
-          <View className="gap-1 mt-2">
-            <View className="flex-row justify-between">
-              <Text className="text-sm text-muted">Heure limite :</Text>
-              <Text className="text-sm font-semibold text-foreground">
-                {dueTimeStr}
-              </Text>
+            <Text className="text-sm font-semibold text-muted">
+              Temps restant
+            </Text>
+            <Text
+              className="text-6xl font-bold text-center"
+              style={{
+                color: isOverdue ? '#FF4D4D' : '#6C63FF',
+                lineHeight: 72,
+              }}
+            >
+              {isOverdue ? 'En retard' : remainingTime}
+            </Text>
+            <View className="gap-1 mt-2">
+              <View className="flex-row justify-between">
+                <Text className="text-sm text-muted">Heure limite :</Text>
+                <Text className="text-sm font-semibold text-foreground">
+                  {dueTimeStr}
+                </Text>
+              </View>
+              <View className="flex-row justify-between">
+                <Text className="text-sm text-muted">Tolérance :</Text>
+                <Text className="text-sm font-semibold text-foreground">
+                  {currentSession.tolerance} min
+                </Text>
+              </View>
             </View>
-            <View className="flex-row justify-between">
-              <Text className="text-sm text-muted">Tolérance :</Text>
-              <Text className="text-sm font-semibold text-foreground">
-                {currentSession.tolerance} min
-              </Text>
-            </View>
-          </View>
-        </GlassCard>
+          </GlassCard>
+        </ScreenTransition>
 
         {/* Je suis rentré Button */}
-        <BigSuccessButton
-          label="✅ Je suis rentré"
-          onPress={handleCompleteSession}
-        />
+        <ScreenTransition delay={200} duration={350}>
+          <BigSuccessButton
+            label="✅ Je suis rentré"
+            onPress={handleCompleteSession}
+          />
+        </ScreenTransition>
 
         {/* + 15 min Button */}
-        <View className="mt-3 mb-3">
-          <CushionPillButton
-            label="+ 15 min"
-            onPress={handleExtendSession}
-            variant="secondary"
-            size="lg"
-          />
-        </View>
+        <ScreenTransition delay={300} duration={350}>
+          <View className="mt-3 mb-3">
+            <CushionPillButton
+              label="+ 15 min"
+              onPress={handleExtendSession}
+              variant="secondary"
+              size="lg"
+            />
+          </View>
+        </ScreenTransition>
 
         {/* Annuler la sortie */}
-        <Pressable onPress={handleCancelSession} className="py-4">
-          <Text className="text-center text-base font-bold text-error">
-            Annuler la sortie
-          </Text>
-        </Pressable>
+        <ScreenTransition delay={400} duration={350}>
+          <Pressable onPress={handleCancelSession} className="py-4">
+            <Text className="text-center text-base font-bold text-error">
+              Annuler la sortie
+            </Text>
+          </Pressable>
+        </ScreenTransition>
       </ScrollView>
     </View>
   );

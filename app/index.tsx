@@ -1,8 +1,9 @@
-import { ScrollView, View, Text, Pressable } from 'react-native';
+import { Pressable, ScrollView, Text, View } from 'react-native';
 import { BubbleBackground } from '@/components/ui/bubble-background';
 import { GlassCard } from '@/components/ui/glass-card';
 import { HeroCardPremium } from '@/components/ui/hero-card-premium';
 import { StatusCard } from '@/components/ui/status-card';
+import { ScreenTransition } from '@/components/ui/screen-transition';
 import { useApp } from '@/lib/context/app-context';
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
@@ -64,79 +65,89 @@ export default function IndexScreen() {
         }}
       >
         {/* Header */}
-        <View className="gap-1 mb-3">
-          <Text className="text-5xl font-bold text-foreground">
-            SafeWalk
-          </Text>
-          <Text className="text-base text-muted">
-            Reste en sécurité, partout.
-          </Text>
-        </View>
+        <ScreenTransition delay={0} duration={350}>
+          <View className="gap-1 mb-3">
+            <Text className="text-5xl font-bold text-foreground">
+              SafeWalk
+            </Text>
+            <Text className="text-base text-muted">
+              Reste en sécurité, partout.
+            </Text>
+          </View>
+        </ScreenTransition>
 
         {/* Hero Card */}
-        <View className="mb-3">
-          <HeroCardPremium
-            title="Je sors"
-            description="Définis une heure de retour. Un proche est prévenu si tu ne confirmes pas."
-            buttonLabel="Commencer"
-            onButtonPress={handleStartSession}
-          />
-        </View>
+        <ScreenTransition delay={100} duration={350}>
+          <View className="mb-3">
+            <HeroCardPremium
+              title="Je sors"
+              description="Définis une heure de retour. Un proche est prévenu si tu ne confirmes pas."
+              buttonLabel="Commencer"
+              onButtonPress={handleStartSession}
+            />
+          </View>
+        </ScreenTransition>
 
         {/* Status Card */}
-        <View className="mb-3">
-          <StatusCard
-            status={hasContact ? 'active' : 'inactive'}
-            title={hasContact ? 'Sécurité active' : 'Sécurité inactive'}
-            subtitle={hasContact ? 'Contact configuré' : 'Configurer un contact'}
-            onPress={() => router.push('/settings')}
-          />
-        </View>
+        <ScreenTransition delay={200} duration={350}>
+          <View className="mb-3">
+            <StatusCard
+              status={hasContact ? 'active' : 'inactive'}
+              title={hasContact ? 'Sécurité active' : 'Sécurité inactive'}
+              subtitle={hasContact ? 'Contact configuré' : 'Configurer un contact'}
+              onPress={() => router.push('/settings')}
+            />
+          </View>
+        </ScreenTransition>
 
         {/* Mini Card - Sortie en cours */}
         {currentSession && (
-          <Pressable
-            onPress={() => router.push('/active-session')}
-            className="mb-3"
-            style={{
-              backgroundColor: 'rgba(255, 255, 255, 0.94)',
-              borderRadius: 28,
-              paddingHorizontal: 16,
-              paddingVertical: 14,
-              shadowColor: '#000',
-              shadowOffset: { width: 0, height: 10 },
-              shadowOpacity: 0.1,
-              shadowRadius: 35,
-              elevation: 4,
-            }}
-          >
-            <View className="flex-row items-center gap-3">
-              <MaterialIcons name="location-on" size={20} color="#6C63FF" />
-              <View className="flex-1">
-                <Text className="text-base font-semibold text-foreground">
-                  Sortie en cours
-                </Text>
-                <Text className="text-sm text-muted">
-                  Temps restant: {remainingTime}
-                </Text>
+          <ScreenTransition delay={300} duration={350}>
+            <Pressable
+              onPress={() => router.push('/active-session')}
+              className="mb-3"
+              style={{
+                backgroundColor: 'rgba(255, 255, 255, 0.94)',
+                borderRadius: 28,
+                paddingHorizontal: 16,
+                paddingVertical: 14,
+                shadowColor: '#000',
+                shadowOffset: { width: 0, height: 10 },
+                shadowOpacity: 0.1,
+                shadowRadius: 35,
+                elevation: 4,
+              }}
+            >
+              <View className="flex-row items-center gap-3">
+                <MaterialIcons name="location-on" size={20} color="#6C63FF" />
+                <View className="flex-1">
+                  <Text className="text-base font-semibold text-foreground">
+                    Sortie en cours
+                  </Text>
+                  <Text className="text-sm text-muted">
+                    Temps restant: {remainingTime}
+                  </Text>
+                </View>
+                <MaterialIcons name="chevron-right" size={24} color="#6C63FF" />
               </View>
-              <MaterialIcons name="chevron-right" size={24} color="#6C63FF" />
-            </View>
-          </Pressable>
+            </Pressable>
+          </ScreenTransition>
         )}
 
         {/* Section "Infos utiles" - visible seulement si pas de session */}
         {!currentSession && (
-          <View className="mt-3">
-            <GlassCard className="gap-2">
-              <Text className="text-sm font-semibold text-foreground">
-                Conseil du jour
-              </Text>
-              <Text className="text-xs text-muted leading-relaxed">
-                Partage toujours ton heure de retour avec un proche de confiance.
-              </Text>
-            </GlassCard>
-          </View>
+          <ScreenTransition delay={300} duration={350}>
+            <View className="mt-3">
+              <GlassCard className="gap-2">
+                <Text className="text-sm font-semibold text-foreground">
+                  Conseil du jour
+                </Text>
+                <Text className="text-xs text-muted leading-relaxed">
+                  Partage toujours ton heure de retour avec un proche de confiance.
+                </Text>
+              </GlassCard>
+            </View>
+          </ScreenTransition>
         )}
       </ScrollView>
     </View>

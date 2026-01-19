@@ -3,6 +3,7 @@ import { BubbleBackground } from '@/components/ui/bubble-background';
 import { GlassCard } from '@/components/ui/glass-card';
 import { PopTextField } from '@/components/ui/pop-text-field';
 import { SegmentedControlPill } from '@/components/ui/segmented-control-pill';
+import { ScreenTransition } from '@/components/ui/screen-transition';
 import { useApp } from '@/lib/context/app-context';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -104,121 +105,129 @@ export default function SettingsScreen() {
         }}
       >
         {/* Header */}
-        <View className="gap-1 mb-4">
-          <Text className="text-4xl font-bold text-foreground">
-            Paramètres
-          </Text>
-        </View>
+        <ScreenTransition delay={0} duration={350}>
+          <View className="gap-1 mb-4">
+            <Text className="text-4xl font-bold text-foreground">
+              Paramètres
+            </Text>
+          </View>
+        </ScreenTransition>
 
         {/* SECTION 1: PROFIL */}
-        <View className="mb-4">
-          <Text className="text-xs font-bold text-muted uppercase tracking-wider mb-2">
-            Profil
-          </Text>
+        <ScreenTransition delay={100} duration={350}>
+          <View className="mb-4">
+            <Text className="text-xs font-bold text-muted uppercase tracking-wider mb-2">
+              Profil
+            </Text>
 
-          {/* Card "Ton prénom" */}
-          <GlassCard className="gap-2">
-            <View className="flex-row items-center gap-2">
-              <MaterialIcons name="person" size={16} color="#6C63FF" />
-              <Text className="text-sm font-semibold text-muted">
-                Prénom
-              </Text>
-            </View>
-            <PopTextField
-              placeholder="Ben"
-              value={firstName}
-              onChangeText={setFirstName}
-            />
-          </GlassCard>
-        </View>
+            {/* Card "Ton prénom" */}
+            <GlassCard className="gap-2">
+              <View className="flex-row items-center gap-2">
+                <MaterialIcons name="person" size={16} color="#6C63FF" />
+                <Text className="text-sm font-semibold text-muted">
+                  Prénom
+                </Text>
+              </View>
+              <PopTextField
+                placeholder="Ben"
+                value={firstName}
+                onChangeText={setFirstName}
+              />
+            </GlassCard>
+          </View>
+        </ScreenTransition>
 
         {/* SECTION 2: SÉCURITÉ */}
-        <View className="mb-4">
-          <Text className="text-xs font-bold text-muted uppercase tracking-wider mb-2">
-            Sécurité
-          </Text>
+        <ScreenTransition delay={200} duration={350}>
+          <View className="mb-4">
+            <Text className="text-xs font-bold text-muted uppercase tracking-wider mb-2">
+              Sécurité
+            </Text>
 
-          {/* Card "Contact d'urgence" */}
-          <View className="mb-3">
-            <GlassCard className="gap-2">
-              <View className="flex-row items-center gap-2">
-                <MaterialIcons name="emergency" size={16} color="#FF4D4D" />
-                <Text className="text-sm font-semibold text-foreground">
-                  Contact d'urgence
-                </Text>
-              </View>
-              
-              <PopTextField
-                placeholder="Nom"
-                value={contactName}
-                onChangeText={setContactName}
-              />
-
-              <View className="flex-row items-center gap-2">
-                <View className="flex-1">
-                  <PopTextField
-                    placeholder="+33 6 12 34 56 78"
-                    value={contactPhone}
-                    onChangeText={setContactPhone}
-                  />
-                </View>
-                <Pressable className="p-2">
-                  <MaterialIcons name="phone" size={20} color="#6C63FF" />
-                </Pressable>
-              </View>
-            </GlassCard>
-          </View>
-
-          {/* Card "Tolérance" */}
-          <View className="mb-3">
-            <GlassCard className="gap-2">
-              <View className="flex-row items-center gap-2">
-                <MaterialIcons name="schedule" size={16} color="#2DE2A6" />
-                <Text className="text-sm font-semibold text-foreground">
-                  Tolérance
-                </Text>
-              </View>
-              <SegmentedControlPill
-                options={[
-                  { label: '10 min', value: 10 },
-                  { label: '15 min', value: 15 },
-                  { label: '30 min', value: 30 },
-                ]}
-                value={tolerance}
-                onValueChange={(value) => setTolerance(value as number)}
-              />
-            </GlassCard>
-          </View>
-
-          {/* Card "Localisation" */}
-          <View className="mb-3">
-            <GlassCard className="gap-2">
-              <View className="flex-row items-center justify-between">
-                <View className="flex-row items-center gap-2 flex-1">
-                  <MaterialIcons name="location-on" size={16} color="#3A86FF" />
+            {/* Card "Contact d'urgence" */}
+            <View className="mb-3">
+              <GlassCard className="gap-2">
+                <View className="flex-row items-center gap-2">
+                  <MaterialIcons name="emergency" size={16} color="#FF4D4D" />
                   <Text className="text-sm font-semibold text-foreground">
-                    Partage de position
+                    Contact d'urgence
                   </Text>
                 </View>
-                <Switch
-                  value={locationEnabled}
-                  onValueChange={(value) => {
-                    setLocationEnabled(value);
-                  }}
-                  trackColor={{ false: '#E5E7EB', true: '#2DE2A6' }}
-                  thumbColor="#FFFFFF"
+                
+                <PopTextField
+                  placeholder="Nom"
+                  value={contactName}
+                  onChangeText={setContactName}
                 />
-              </View>
-            </GlassCard>
+
+                <View className="flex-row items-center gap-2">
+                  <View className="flex-1">
+                    <PopTextField
+                      placeholder="+33 6 12 34 56 78"
+                      value={contactPhone}
+                      onChangeText={setContactPhone}
+                    />
+                  </View>
+                  <Pressable className="p-2">
+                    <MaterialIcons name="phone" size={20} color="#6C63FF" />
+                  </Pressable>
+                </View>
+              </GlassCard>
+            </View>
+
+            {/* Card "Tolérance" */}
+            <View className="mb-3">
+              <GlassCard className="gap-2">
+                <View className="flex-row items-center gap-2">
+                  <MaterialIcons name="schedule" size={16} color="#2DE2A6" />
+                  <Text className="text-sm font-semibold text-foreground">
+                    Tolérance
+                  </Text>
+                </View>
+                <SegmentedControlPill
+                  options={[
+                    { label: '10 min', value: 10 },
+                    { label: '15 min', value: 15 },
+                    { label: '30 min', value: 30 },
+                  ]}
+                  value={tolerance}
+                  onValueChange={(value) => setTolerance(value as number)}
+                />
+              </GlassCard>
+            </View>
+
+            {/* Card "Localisation" */}
+            <View className="mb-3">
+              <GlassCard className="gap-2">
+                <View className="flex-row items-center justify-between">
+                  <View className="flex-row items-center gap-2 flex-1">
+                    <MaterialIcons name="location-on" size={16} color="#3A86FF" />
+                    <Text className="text-sm font-semibold text-foreground">
+                      Partage de position
+                    </Text>
+                  </View>
+                  <Switch
+                    value={locationEnabled}
+                    onValueChange={(value) => {
+                      setLocationEnabled(value);
+                    }}
+                    trackColor={{ false: '#E5E7EB', true: '#2DE2A6' }}
+                    thumbColor="#FFFFFF"
+                  />
+                </View>
+              </GlassCard>
+            </View>
           </View>
-        </View>
+        </ScreenTransition>
 
         {/* Bouton "Supprimer mes données" */}
-        <Pressable onPress={handleDeleteData}>
-          <Text className="text-center text-base font-bold text-error">
-            Supprimer mes données
-          </Text>
-        </Pressable>
+        <ScreenTransition delay={300} duration={350}>
+          <Pressable onPress={handleDeleteData}>
+            <Text className="text-center text-base font-bold text-error">
+              Supprimer mes données
+            </Text>
+          </Pressable>
+        </ScreenTransition>
       </View>
 
       {/* Toast */}

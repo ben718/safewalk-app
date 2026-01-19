@@ -535,3 +535,13 @@
 - [x] Utiliser seulement les haptics des autres pages (aucun haptics sur Settings)
 - [x] Vérifier que les interactions Settings ressemblent à Home/New Session/Active Session
 - [x] Tester que la page ne vibre plus au clic (vibrations supprimées)
+
+
+## ANIMATIONS DE TRANSITION (Fluide Navigation)
+
+- [x] Créer un composant ScreenTransition avec fade-in + slide-up (react-native-reanimated)
+- [x] Ajouter animations fade-in au chargement des écrans (Home, New Session, Active Session, Settings)
+- [x] Ajouter animations slide-up au chargement des cards/content (translateY: 20 → 0)
+- [x] Implémenter des transitions fluides entre les écrans (350ms, easing cubic)
+- [x] Tester les animations sur iPhone pour vérifier la fluidité
+- [x] Vérifier que les animations ne ralentissent pas l'app (pas de lag observé)

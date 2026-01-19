@@ -1,9 +1,10 @@
-import { ScrollView, View, Text } from 'react-native';
+import { ScrollView, Text, View } from 'react-native';
 import { BubbleBackground } from '@/components/ui/bubble-background';
 import { GlassCard } from '@/components/ui/glass-card';
 import { PopTextField } from '@/components/ui/pop-text-field';
 import { CushionPillButton } from '@/components/ui/cushion-pill-button';
 import { TimeLimitPicker } from '@/components/ui/time-limit-picker';
+import { ScreenTransition } from '@/components/ui/screen-transition';
 import { useApp } from '@/lib/context/app-context';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
@@ -45,63 +46,73 @@ export default function NewSessionScreen() {
         }}
       >
         {/* Header */}
-        <View className="gap-1 mb-6">
-          <Text className="text-4xl font-bold text-foreground">Je sors</Text>
-          <Text className="text-base text-muted">
-            Tu penses rentrer vers quelle heure ?
-          </Text>
-        </View>
+        <ScreenTransition delay={0} duration={350}>
+          <View className="gap-1 mb-6">
+            <Text className="text-4xl font-bold text-foreground">Je sors</Text>
+            <Text className="text-base text-muted">
+              Tu penses rentrer vers quelle heure ?
+            </Text>
+          </View>
+        </ScreenTransition>
 
         {/* Time Limit Picker */}
-        <View className="gap-3 mb-4">
-          <TimeLimitPicker
-            selectedTime={limitTime}
-            onTimeSelected={setLimitTime}
-          />
-        </View>
+        <ScreenTransition delay={100} duration={350}>
+          <View className="gap-3 mb-4">
+            <TimeLimitPicker
+              selectedTime={limitTime}
+              onTimeSelected={setLimitTime}
+            />
+          </View>
+        </ScreenTransition>
 
         {/* Card Où vas-tu */}
-        <GlassCard className="gap-2 mb-3">
-          <Text className="text-sm font-medium text-muted">
-            Où vas-tu ? (optionnel)
-          </Text>
-          <PopTextField
-            placeholder="Ex: Soirée chez Karim..."
-            value={note}
-            onChangeText={setNote}
-          />
-        </GlassCard>
+        <ScreenTransition delay={200} duration={350}>
+          <GlassCard className="gap-2 mb-3">
+            <Text className="text-sm font-medium text-muted">
+              Où vas-tu ? (optionnel)
+            </Text>
+            <PopTextField
+              placeholder="Ex: Soirée chez Karim..."
+              value={note}
+              onChangeText={setNote}
+            />
+          </GlassCard>
+        </ScreenTransition>
 
         {/* Card Contact d'urgence */}
-        <GlassCard className="gap-2 mb-3">
-          <Text className="text-sm font-medium text-muted">
-            Contact d'urgence
-          </Text>
-          <View className="flex-row items-center justify-between">
-            <View className="flex-1">
-              <Text className="text-base font-semibold text-foreground">
-                {settings.emergencyContactName || 'Non configuré'}
-              </Text>
-              <Text className="text-sm text-muted mt-1">
-                {settings.emergencyContactPhone || ''}
-              </Text>
+        <ScreenTransition delay={300} duration={350}>
+          <GlassCard className="gap-2 mb-3">
+            <Text className="text-sm font-medium text-muted">
+              Contact d'urgence
+            </Text>
+            <View className="flex-row items-center justify-between">
+              <View className="flex-1">
+                <Text className="text-base font-semibold text-foreground">
+                  {settings.emergencyContactName || 'Non configuré'}
+                </Text>
+                <Text className="text-sm text-muted mt-1">
+                  {settings.emergencyContactPhone || ''}
+                </Text>
+              </View>
             </View>
-          </View>
-        </GlassCard>
+          </GlassCard>
+        </ScreenTransition>
 
         {/* Card Localisation */}
-        <GlassCard className="gap-2">
-          <View className="flex-row items-center justify-between">
-            <View className="flex-1">
-              <Text className="text-sm font-medium text-muted">
-                Localisation
-              </Text>
-              <Text className="text-xs text-muted mt-1">
-                Ajouter ta position en cas d'alerte
-              </Text>
+        <ScreenTransition delay={400} duration={350}>
+          <GlassCard className="gap-2">
+            <View className="flex-row items-center justify-between">
+              <View className="flex-1">
+                <Text className="text-sm font-medium text-muted">
+                  Localisation
+                </Text>
+                <Text className="text-xs text-muted mt-1">
+                  Ajouter ta position en cas d'alerte
+                </Text>
+              </View>
             </View>
-          </View>
-        </GlassCard>
+          </GlassCard>
+        </ScreenTransition>
       </ScrollView>
 
       {/* Sticky CTA Bottom */}
