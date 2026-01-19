@@ -501,3 +501,19 @@
 - [x] Bouton "Commencer" dans HeroCard: texte blanc sur fond bleu secondary maintenant lisible
 - [x] Bouton "+ 15 min": texte blanc sur fond bleu foncé maintenant lisible
 - [x] Vérifier tous les boutons ont bon contraste (white text sur colored background)
+
+
+## AMÉLIORATION SECTION PARAMÈTRES (Pro Polish)
+
+- [x] Refactoriser Settings screen avec meilleure organisation (sections claires: Profil, Sécurité, À propos)
+- [x] Ajouter des icônes Material Icons à chaque champ (user, phone, shield, location, etc.)
+- [x] Améliorer les interactions : feedback visuel au tap, transitions fluides (opacity on press)
+- [x] Ajouter des descriptions/hints sous les labels pour meilleure UX
+- [x] Switch localisation déjà polished avec couleurs mint/gris
+- [x] Segmented control tolérance avec description explicite
+- [x] Améliorer la section "Infos" avec icônes et design pro
+- [x] Ajouter des sections visuelles avec labels uppercase (Profil, Sécurité, À propos)
+- [x] Toast de confirmation autosave avec emoji + haptics
+- [x] Bouton "Supprimer mes données" avec emoji + opacity feedback
+- [x] Ajouter des descriptions explicatives pour chaque paramètre
+- [x] Haptics feedback sur tous les boutons interactifs
