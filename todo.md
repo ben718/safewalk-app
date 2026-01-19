@@ -304,3 +304,43 @@
 - [x] Screenshot après correction
 - [x] Vérifier pas de vide artificiel
 - [x] Tous les boutons visibles et actifs
+
+
+## REFAIRE ÉCRAN "SORTIE EN COURS" EXACTEMENT COMME LE MOCK
+
+### Structure visuelle (ordre exact)
+- [x] Titre en haut: "Sortie en cours" (H1)
+- [x] Petite pill card sous titre: "😊 Tu foras après" (fine)
+- [x] Grosse card principale (timer card) au centre:
+  - Header "🌚 Heure limite"
+  - Grand chiffre au centre (02:30)
+  - Sous-bloc info: "Heure limite : 02:30" + "Tolérance : 15 min"
+  - Bouton vert dans la card: "✅ Je suis rentré"
+- [x] Sous la grande card: 2 boutons en ligne (mêmes largeurs):
+  - Gauche: "+ 15 min" (secondary)
+  - Droite: "Annuler la sortie" (danger outline + icône ⚠️)
+- [x] En bas: menu capsule (Accueil / Paramètres) visible
+
+### Règles de layout
+- [x] PAS de Spacer(), PAS de Expanded()
+- [x] PAS de MainAxisAlignment.spaceBetween
+- [x] Tout compact, centré en haut, gaps constants
+
+### Spacing target
+- [x] Title top padding: safeAreaTop + 8
+- [x] Gap titre -> pill: 12
+- [x] Gap pill -> timer card: 16
+- [x] Gap timer card -> row buttons: 14
+- [x] Gap row buttons -> nav capsule: 18
+- [x] Aucun padding vertical excessif
+
+### Composants
+- [x] TimerCard: radius 28-32, padding 16, timer font 64-72, bouton vert height 56-60
+- [x] Row buttons: height 50-54, radius 18-22, gap 12
+- [x] Bouton danger: outline (gris clair + texte rouge) + icône warning
+
+### QA
+- [x] Screenshot final identique au mock
+- [x] Pas de désert blanc
+- [x] Grande card tient dans l'écran sans scroll (iPhone 13/14)
+- [x] Capsule bottom nav collée au bas (floating) sans pousser contenu
