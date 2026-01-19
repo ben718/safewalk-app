@@ -88,3 +88,28 @@
 - [x] Haptics + press animations OK
 - [x] Tous les écrans sans erreurs
 - [ ] Créer checkpoint final avec timer corrigé
+
+
+## FIX GLOBAL UI/UX (Manus Feedback)
+
+### Règles générales
+- [x] Réduire tous les vides (padding 16-18px, gaps 12-16px max)
+- [x] Cards: opacity 0.94 + radius 28-32 + shadow soft
+- [x] Boutons actifs: opacity 1.0 + shadow, désactivés: opacity 0.45
+- [x] Tous les CTA doivent être bien visibles et en relief
+
+### Écran "Je sors" (New Session)
+- [x] Regrouper les cards avec gaps 12px
+- [x] Bouton "Démarrer" sticky en bas (proche des cards)
+- [x] Texte "Localisation" plus petit et sur 2 lignes max
+- [x] Supprimer zones vides inutiles
+
+### Écran "Sortie en cours" (Active Session)
+- [x] Vérifier opacité des boutons (1.0 + shadow)
+- [x] Card timer moins haute (py-6 au lieu de py-8)
+- [x] Bloc boutons collé sous la card (gap 14-18)
+
+### Écran Home
+- [x] Ajouter mini card "📍 Sortie en cours" si session active
+- [x] Tap sur mini card -> ouvre Active Session
+- [x] Afficher uniquement si session active

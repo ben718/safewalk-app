@@ -1,12 +1,14 @@
-import { ScrollView, View, Text } from 'react-native';
+import { ScrollView, View, Text, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
 import { ScreenContainer } from '@/components/screen-container';
 import { BubbleBackground } from '@/components/ui/bubble-background';
 import { HeroCardPremium } from '@/components/ui/hero-card-premium';
 import { StatusCard } from '@/components/ui/status-card';
+import { GlassCard } from '@/components/ui/glass-card';
 import { useApp } from '@/lib/context/app-context';
 import { useState } from 'react';
 import { ToastPop } from '@/components/ui/toast-pop';
+import { MaterialIcons } from '@expo/vector-icons';
 
 export default function IndexScreen() {
   const router = useRouter();
@@ -37,6 +39,12 @@ export default function IndexScreen() {
     }
   };
 
+  const handleActiveSessionPress = () => {
+    if (currentSession) {
+      router.push('/active-session');
+    }
+  };
+
   return (
     <ScreenContainer
       className="relative pb-24"
@@ -50,7 +58,7 @@ export default function IndexScreen() {
         showsVerticalScrollIndicator={false}
       >
         {/* Header */}
-        <View className="gap-1 mb-4">
+        <View className="gap-1 mb-3">
           <Text className="text-3xl font-bold text-foreground">
             SafeWalk
           </Text>
@@ -60,21 +68,56 @@ export default function IndexScreen() {
         </View>
 
         {/* Hero Card */}
-        <HeroCardPremium
-          title="Je sors"
-          description="Définis une heure de retour. Un proche est prévenu si tu ne confirmes pas."
-          buttonLabel="Commencer"
-          onButtonPress={handleStartSession}
-          emoji="🚀"
-        />
+        <View className="mb-3">
+          <HeroCardPremium
+            title="Je sors"
+            description="Définis une heure de retour. Un proche est prévenu si tu ne confirmes pas."
+            buttonLabel="Commencer"
+            onButtonPress={handleStartSession}
+            emoji="🚀"
+          />
+        </View>
 
         {/* Status Card */}
-        <StatusCard
-          status={hasContact ? 'active' : 'inactive'}
-          title={statusTitle}
-          subtitle={statusSubtitle}
-          onPress={handleStatusPress}
-        />
+        <View className="mb-3">
+          <StatusCard
+            status={hasContact ? 'active' : 'inactive'}
+            title={statusTitle}
+            subtitle={statusSubtitle}
+            onPress={handleStatusPress}
+          />
+        </View>
+
+        {/* Active Session Card (if exists) */}
+        {currentSession && (
+          <Pressable onPress={handleActiveSessionPress}>
+            {({ pressed }) => (
+              <GlassCard
+                className="flex-row items-center justify-between p-4"
+                style={{
+                  opacity: pressed ? 0.8 : 1.0,
+                }}
+              >
+                <View className="flex-row items-center gap-3 flex-1">
+                  <Text className="text-2xl">📍</Text>
+                  <View className="flex-1">
+                    <Text className="text-sm font-semibold text-foreground">
+                      Sortie en cours
+                    </Text>
+                    <Text className="text-xs text-muted">
+                      Tap pour voir les détails
+                    </Text>
+                  </View>
+                </View>
+                <MaterialIcons
+                  name="chevron-right"
+                  size={24}
+                  color="#6C63FF"
+                />
+              </GlassCard>
+            )}
+          </Pressable>
+        )}
       </ScrollView>
 
       {/* Toast */}

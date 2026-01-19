@@ -54,11 +54,11 @@ export default function NewSessionScreen() {
 
       <ScrollView
         contentContainerStyle={{ flexGrow: 1 }}
-        className="relative z-10 gap-4"
+        className="relative z-10 gap-3"
         showsVerticalScrollIndicator={false}
       >
         {/* Header */}
-        <View className="gap-1 mb-2">
+        <View className="gap-1 mb-1">
           <Text className="text-3xl font-bold text-foreground">
             Je sors
           </Text>
@@ -68,23 +68,23 @@ export default function NewSessionScreen() {
         </View>
 
         {/* Heure limite */}
-        <View className="gap-2">
-          <Text className="text-sm font-semibold text-foreground">
-            Heure limite
-          </Text>
-          <Pressable onPress={() => setShowTimeModal(true)}>
-            <GlassCard className="flex-row items-center justify-between p-4">
+        <Pressable onPress={() => setShowTimeModal(true)}>
+          <GlassCard className="flex-row items-center justify-between p-4">
+            <View>
+              <Text className="text-xs text-muted font-semibold mb-1">
+                Heure limite
+              </Text>
               <Text className="text-4xl font-bold text-primary">
                 {dueTime}
               </Text>
-              <MaterialIcons
-                name="schedule"
-                size={28}
-                color="#6C63FF"
-              />
-            </GlassCard>
-          </Pressable>
-        </View>
+            </View>
+            <MaterialIcons
+              name="schedule"
+              size={28}
+              color="#6C63FF"
+            />
+          </GlassCard>
+        </Pressable>
 
         {/* Où vas-tu ? */}
         <PopTextField
@@ -97,31 +97,29 @@ export default function NewSessionScreen() {
         />
 
         {/* Contact d'urgence */}
-        <View className="gap-2">
-          <Text className="text-sm font-semibold text-foreground">
-            Contact d'urgence
-          </Text>
-          <GlassCard className="flex-row items-center justify-between p-4">
-            <View className="flex-1">
-              <Text className="text-base font-semibold text-foreground">
-                {settings.emergencyContactName}
-              </Text>
-              <Text className="text-sm text-muted">
-                {settings.emergencyContactPhone}
-              </Text>
-            </View>
-            <Pressable className="p-2">
-              <MaterialIcons
-                name="phone"
-                size={24}
-                color="#6C63FF"
-              />
-            </Pressable>
-          </GlassCard>
-        </View>
+        <GlassCard className="flex-row items-center justify-between p-4">
+          <View className="flex-1">
+            <Text className="text-xs text-muted font-semibold mb-1">
+              Contact d'urgence
+            </Text>
+            <Text className="text-base font-semibold text-foreground">
+              {settings.emergencyContactName}
+            </Text>
+            <Text className="text-sm text-muted">
+              {settings.emergencyContactPhone}
+            </Text>
+          </View>
+          <Pressable className="p-2">
+            <MaterialIcons
+              name="phone"
+              size={24}
+              color="#6C63FF"
+            />
+          </Pressable>
+        </GlassCard>
 
         {/* Localisation */}
-        <View className="gap-2">
+        <GlassCard className="gap-3 p-4">
           <View className="flex-row items-center justify-between">
             <Text className="text-sm font-semibold text-foreground">
               Localisation
@@ -146,13 +144,13 @@ export default function NewSessionScreen() {
               />
             </Pressable>
           </View>
-          <Text className="text-xs text-muted">
-            Ajouter la position en cas d'alerte. Jamais en continu, juste une dernière position si l'alerte part.
+          <Text className="text-xs text-muted leading-tight">
+            Jamais en continu. Une dernière position si l'alerte part.
           </Text>
-        </View>
+        </GlassCard>
 
         {/* CTA */}
-        <View className="mt-6">
+        <View className="mt-4 mb-2">
           <CushionPillButton
             label="Démarrer"
             onPress={handleStartSession}
