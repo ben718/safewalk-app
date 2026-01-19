@@ -206,3 +206,32 @@
 - [x] Bouton "Je suis rentré" height: 62, radius: 31, opacity: 1.0
 - [x] Bouton "+ 15 min" height: 48-52, radius: 24-26
 - [x] "Annuler" marginTop: 10-12
+
+
+## REFACTOR FINAL (UX type Uber)
+
+### Navigation Architecture
+- [x] Menu capsule visible UNIQUEMENT sur /home et /settings
+- [x] Écrans flow SANS menu: /new-session, /active-session, /alert-sent, /history
+- [x] AppShell contient seulement HomeScreen + SettingsScreen
+- [x] Navigation vers flow via Navigator.push depuis AppShell
+- [x] Écrans flow ont leur propre Scaffold plein écran
+
+### Home/Settings (avec menu)
+- [x] Capsule flottante visible
+- [x] Padding bottom = navHeight + safeArea + 10
+- [x] Comportement identique au mock
+
+### Flow Screens (sans menu)
+- [x] /new-session: PAS de capsule, CTA "Démarrer" sticky bottom
+- [x] /active-session: PAS de capsule, boutons sticky bottom
+- [x] /alert-sent: PAS de capsule, plein écran
+- [x] /history: PAS de capsule, plein écran
+- [x] Contenu compact en haut, pas de désert
+- [x] CTA sticky bottom autorisé
+
+### QA & Screenshots
+- [x] Screenshot 1: Home avec menu capsule
+- [x] Screenshot 2: Paramètres avec menu capsule
+- [x] Screenshot 3: Je sors SANS menu + bouton sticky
+- [x] Screenshot 4: Sortie en cours SANS menu + boutons sticky

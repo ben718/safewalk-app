@@ -1,5 +1,4 @@
 import { ScrollView, View, Text, Pressable, Alert } from 'react-native';
-import { ScreenContainer } from '@/components/screen-container';
 import { BubbleBackground } from '@/components/ui/bubble-background';
 import { GlassCard } from '@/components/ui/glass-card';
 import { BigSuccessButton } from '@/components/ui/big-success-button';
@@ -7,9 +6,11 @@ import { CushionPillButton } from '@/components/ui/cushion-pill-button';
 import { useApp } from '@/lib/context/app-context';
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function ActiveSessionScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const { currentSession, endSession, cancelSession, addTimeToSession } = useApp();
   const [remainingTime, setRemainingTime] = useState<string>('00:00:00');
   const [isOverdue, setIsOverdue] = useState(false);
@@ -68,8 +69,8 @@ export default function ActiveSessionScreen() {
         {
           text: 'Oui',
           style: 'destructive',
-          onPress: () => {
-            cancelSession();
+          onPress: async () => {
+            await cancelSession();
             router.push('/');
           },
         },
@@ -87,15 +88,12 @@ export default function ActiveSessionScreen() {
   });
 
   return (
-    <ScreenContainer
-      className="px-4 pt-3"
-      containerClassName="bg-background"
-    >
+    <View className="flex-1 bg-background">
       <BubbleBackground />
 
       <ScrollView
         contentContainerStyle={{ flexGrow: 1 }}
-        className="relative z-10"
+        className="relative z-10 px-4 pt-3"
         showsVerticalScrollIndicator={false}
       >
         {/* Header */}
@@ -138,34 +136,34 @@ export default function ActiveSessionScreen() {
             </View>
           </View>
         </GlassCard>
-
-        {/* Buttons */}
-        <View className="gap-2 mb-2">
-          {/* Je suis rentré */}
-          <BigSuccessButton
-            label="✅ Je suis rentré"
-            onPress={handleCompleteSession}
-          />
-
-          {/* + 15 min */}
-          <CushionPillButton
-            label="+ 15 min"
-            onPress={handleExtendSession}
-            variant="secondary"
-            size="md"
-          />
-
-          {/* Annuler la sortie */}
-          <Pressable onPress={handleCancelSession} className="py-3">
-            <Text className="text-center text-sm font-semibold text-danger">
-              Annuler la sortie
-            </Text>
-          </Pressable>
-        </View>
-
-        {/* Bottom spacer */}
-        <View className="h-2" />
       </ScrollView>
-    </ScreenContainer>
+
+      {/* Sticky Buttons Bottom */}
+      <View
+        className="px-4 bg-background border-t border-border gap-2"
+        style={{ paddingBottom: insets.bottom + 16, paddingTop: 12 }}
+      >
+        {/* Je suis rentré */}
+        <BigSuccessButton
+          label="✅ Je suis rentré"
+          onPress={handleCompleteSession}
+        />
+
+        {/* + 15 min */}
+        <CushionPillButton
+          label="+ 15 min"
+          onPress={handleExtendSession}
+          variant="secondary"
+          size="md"
+        />
+
+        {/* Annuler la sortie */}
+        <Pressable onPress={handleCancelSession} className="py-3">
+          <Text className="text-center text-sm font-semibold text-error">
+            Annuler la sortie
+          </Text>
+        </Pressable>
+      </View>
+    </View>
   );
 }
