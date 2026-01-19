@@ -129,3 +129,23 @@
 - [x] Tap sur mini card -> ouvre Active Session
 - [x] Afficher uniquement si session active
 - [x] Remplir l'espace vide + améliorer UX
+
+
+## MENU OBLIGATOIRE PARTOUT (Nested Navigator + AppShell)
+
+### Architecture
+- [x] Créer AppShell avec nested Navigator
+- [x] FloatingBottomNavCapsule en overlay (Positioned bottom)
+- [x] Routes internes: /home, /settings, /new-session, /active-session, /alert-sent, /history
+- [x] Bottom nav: 2 tabs (Accueil, Paramètres)
+
+### Implémentation
+- [x] Refactoriser _layout.tsx pour utiliser AppShell
+- [x] Ajouter padding bottom sur tous les écrans
+- [x] Tester navigation sur tous les écrans
+- [x] Vérifier que la capsule reste visible partout
+
+### QA
+- [x] Screenshots: home, settings, new-session, active-session avec menu visible
+- [x] Vérifier que le menu ne cache pas le contenu
+- [x] Tester les transitions entre écrans

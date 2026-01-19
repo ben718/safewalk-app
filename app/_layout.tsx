@@ -2,7 +2,7 @@ import "@/global.css";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import "react-native-reanimated";
 import { Platform } from "react-native";
@@ -19,6 +19,7 @@ import type { EdgeInsets, Metrics, Rect } from "react-native-safe-area-context";
 import { trpc, createTRPCClient } from "@/lib/trpc";
 import { initManusRuntime, subscribeSafeAreaInsets } from "@/lib/_core/manus-runtime";
 import { AppProvider } from "@/lib/context/app-context";
+import { AppShellOverlay } from "@/components/app-shell-overlay";
 
 const DEFAULT_WEB_INSETS: EdgeInsets = { top: 0, right: 0, bottom: 0, left: 0 };
 const DEFAULT_WEB_FRAME: Rect = { x: 0, y: 0, width: 0, height: 0 };
@@ -39,16 +40,15 @@ export default function RootLayout() {
     initManusRuntime();
   }, []);
 
-  const handleSafeAreaUpdate = useCallback((metrics: Metrics) => {
-    setInsets(metrics.insets);
-    setFrame(metrics.frame);
-  }, []);
-
   useEffect(() => {
     if (Platform.OS !== "web") return;
+    const handleSafeAreaUpdate = (metrics: Metrics) => {
+      setInsets(metrics.insets);
+      setFrame(metrics.frame);
+    };
     const unsubscribe = subscribeSafeAreaInsets(handleSafeAreaUpdate);
     return () => unsubscribe();
-  }, [handleSafeAreaUpdate]);
+  }, []);
 
   // Create clients once and reuse them
   const [queryClient] = useState(
@@ -56,9 +56,7 @@ export default function RootLayout() {
       new QueryClient({
         defaultOptions: {
           queries: {
-            // Disable automatic refetching on window focus for mobile
             refetchOnWindowFocus: false,
-            // Retry failed requests once
             retry: 1,
           },
         },
@@ -84,19 +82,17 @@ export default function RootLayout() {
       <trpc.Provider client={trpcClient} queryClient={queryClient}>
         <QueryClientProvider client={queryClient}>
           <AppProvider>
-            {/* Default to hiding native headers so raw route segments don't appear (e.g. "(tabs)", "products/[id]"). */}
-            {/* If a screen needs the native header, explicitly enable it and set a human title via Stack.Screen options. */}
-            {/* in order for ios apps tab switching to work properly, use presentation: "fullScreenModal" for login page, whenever you decide to use presentation: "modal*/}
-            <Stack screenOptions={{ headerShown: false }} initialRouteName="index">
-              <Stack.Screen name="index" />
-              <Stack.Screen name="home" />
-              <Stack.Screen name="settings" />
-              <Stack.Screen name="new-session" />
-              <Stack.Screen name="active-session" />
-              <Stack.Screen name="alert-sent" />
-              <Stack.Screen name="history" />
-              <Stack.Screen name="oauth/callback" />
-            </Stack>
+            <AppShellOverlay>
+              <Stack screenOptions={{ headerShown: false }} initialRouteName="index">
+                <Stack.Screen name="index" />
+                <Stack.Screen name="settings" />
+                <Stack.Screen name="new-session" />
+                <Stack.Screen name="active-session" />
+                <Stack.Screen name="alert-sent" />
+                <Stack.Screen name="history" />
+                <Stack.Screen name="oauth/callback" />
+              </Stack>
+            </AppShellOverlay>
             <StatusBar style="auto" />
           </AppProvider>
         </QueryClientProvider>

@@ -47,7 +47,7 @@ export default function NewSessionScreen() {
 
   return (
     <ScreenContainer
-      className="relative pb-24"
+      className="relative pb-32"
       containerClassName="bg-background"
     >
       <BubbleBackground />
