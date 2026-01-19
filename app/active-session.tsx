@@ -155,13 +155,13 @@ export default function ActiveSessionScreen() {
             label="+ 15 min"
             onPress={handleExtendSession}
             variant="secondary"
-            size="md"
+            size="lg"
           />
         </View>
 
         {/* Annuler la sortie */}
-        <Pressable onPress={handleCancelSession} className="py-3">
-          <Text className="text-center text-sm font-semibold text-error">
+        <Pressable onPress={handleCancelSession} className="py-4">
+          <Text className="text-center text-base font-bold text-error">
             Annuler la sortie
           </Text>
         </Pressable>

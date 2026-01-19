@@ -484,3 +484,12 @@
 - [x] Créer composant TimeLimitPicker (bottomSheet + CupertinoDatePicker)
 - [x] Intégrer dans New Session screen
 - [x] Tester logique jour suivant
+
+
+## FIX LISIBILITÉ BOUTONS
+
+- [x] Bouton "Démarrer": augmenter taille texte, améliorer contraste (text-xl font-bold)
+- [x] Bouton "Je suis rentré": augmenter taille texte, améliorer contraste (text-xl font-bold)
+- [x] Bouton "+ 15 min": augmenter taille texte, améliorer contraste (size lg, text-xl font-bold)
+- [x] Vérifier couleur texte sur fond de bouton (white sur primary/success/danger)
+- [x] Tester sur iPhone 13/14 pour vérifier lisibilité

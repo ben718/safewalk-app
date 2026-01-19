@@ -49,10 +49,14 @@ export function BigSuccessButton({
         >
           <MaterialIcons
             name="check-circle"
-            size={24}
+            size={28}
             color="#FFFFFF"
           />
-          <Text className="text-white font-bold text-lg">
+          <Text 
+            className="text-white font-bold text-xl"
+            numberOfLines={1}
+            adjustsFontSizeToFit
+          >
             {label}
           </Text>
         </View>

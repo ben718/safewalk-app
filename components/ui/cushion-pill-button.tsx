@@ -38,9 +38,9 @@ export function CushionPillButton({
   };
 
   const textSizeStyles = {
-    sm: 'text-sm',
-    md: 'text-base',
-    lg: 'text-lg',
+    sm: 'text-sm font-bold',
+    md: 'text-base font-bold',
+    lg: 'text-xl font-bold',
   };
 
   const handlePress = () => {
@@ -86,9 +86,11 @@ export function CushionPillButton({
           
           <Text
             className={cn(
-              'font-semibold text-white',
+              'text-white',
               textSizeStyles[size]
             )}
+            numberOfLines={1}
+            adjustsFontSizeToFit
           >
             {label}
           </Text>
