@@ -273,3 +273,34 @@
 - [x] Screenshot Home sans désert
 - [x] Screenshot Paramètres avec section Infos
 - [x] Screenshot Je sors avec CTA sticky
+
+
+## FIX ÉCRAN "SORTIE EN COURS" (Trop d'espace + Boutons invisibles)
+
+### Problème actuel
+- [x] Énorme vide entre card timer et actions
+- [x] Boutons trop bas et en opacity faible
+- [x] Spacer/Expanded qui pousse les boutons en bas
+
+### Objectif: Layout compact
+- [x] Card timer en haut (height 200-230 max)
+- [x] Bouton "Je suis rentré" juste sous la card (visible, opacity 1.0)
+- [x] "+15 min" + "Annuler la sortie" juste dessous (gap 12)
+- [x] Pas de désert blanc
+
+### Structure obligatoire
+- [x] Utiliser SingleChildScrollView + Column (pas de Spacer/Expanded)
+- [x] Padding: 16H, 12T, bottomPadding = safeArea + 16
+- [x] MainAxisAlignment.start (pas center/spaceBetween)
+- [x] Jamais opacity < 0.9 sur boutons actifs
+
+### Boutons
+- [x] "Je suis rentré": opacity 1.0, height 62, radius 31, shadow visible
+- [x] "+15 min": opacity 1.0, height 50, radius 25
+- [x] "Annuler la sortie": opacity 1.0, height 50, radius 25
+- [x] Gap entre boutons: 12px
+
+### QA
+- [x] Screenshot après correction
+- [x] Vérifier pas de vide artificiel
+- [x] Tous les boutons visibles et actifs

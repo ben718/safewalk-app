@@ -7,6 +7,7 @@ import { useApp } from '@/lib/context/app-context';
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { MaterialIcons } from '@expo/vector-icons';
 
 export default function ActiveSessionScreen() {
   const router = useRouter();
@@ -93,8 +94,13 @@ export default function ActiveSessionScreen() {
 
       <ScrollView
         contentContainerStyle={{ flexGrow: 1 }}
-        className="relative z-10 px-4 pt-3"
+        className="relative z-10"
         showsVerticalScrollIndicator={false}
+        style={{
+          paddingHorizontal: 16,
+          paddingTop: insets.top + 12,
+          paddingBottom: insets.bottom + 16,
+        }}
       >
         {/* Header */}
         <View className="gap-1 mb-3">
@@ -103,20 +109,23 @@ export default function ActiveSessionScreen() {
           </Text>
         </View>
 
-        {/* Timer Card */}
+        {/* Timer Card - Compact */}
         <GlassCard
           className="gap-2 mb-4"
           style={{
             backgroundColor: isOverdue ? 'rgba(255, 77, 77, 0.08)' : 'rgba(255, 255, 255, 0.94)',
+            paddingHorizontal: 16,
+            paddingVertical: 12,
           }}
         >
           <Text className="text-sm font-semibold text-muted">
             Temps restant
           </Text>
           <Text
-            className="text-7xl font-bold text-center"
+            className="text-6xl font-bold text-center"
             style={{
               color: isOverdue ? '#FF4D4D' : '#6C63FF',
+              lineHeight: 72,
             }}
           >
             {isOverdue ? 'En retard' : remainingTime}
@@ -136,34 +145,47 @@ export default function ActiveSessionScreen() {
             </View>
           </View>
         </GlassCard>
-      </ScrollView>
 
-      {/* Sticky Buttons Bottom */}
-      <View
-        className="px-4 bg-background border-t border-border gap-2"
-        style={{ paddingBottom: insets.bottom + 16, paddingTop: 12 }}
-      >
-        {/* Je suis rentré */}
-        <BigSuccessButton
-          label="✅ Je suis rentré"
-          onPress={handleCompleteSession}
-        />
+        {/* Bouton "Je suis rentré" - Visible et actif */}
+        <View className="mb-3">
+          <BigSuccessButton
+            label="✅ Je suis rentré"
+            onPress={handleCompleteSession}
+          />
+        </View>
 
-        {/* + 15 min */}
-        <CushionPillButton
-          label="+ 15 min"
-          onPress={handleExtendSession}
-          variant="secondary"
-          size="md"
-        />
+        {/* Row: "+ 15 min" + "Annuler" */}
+        <View className="flex-row gap-3 mb-2">
+          <View className="flex-1">
+            <CushionPillButton
+              label="+ 15 min"
+              onPress={handleExtendSession}
+              variant="secondary"
+              size="md"
+            />
+          </View>
+          <View className="flex-1">
+            <Pressable
+              onPress={handleCancelSession}
+              className="py-3 px-4 rounded-full border border-error"
+              style={{
+                backgroundColor: 'transparent',
+              }}
+            >
+              <Text className="text-center text-sm font-semibold text-error">
+                Annuler
+              </Text>
+            </Pressable>
+          </View>
+        </View>
 
-        {/* Annuler la sortie */}
-        <Pressable onPress={handleCancelSession} className="py-3">
-          <Text className="text-center text-sm font-semibold text-error">
+        {/* Texte "Annuler la sortie" en bas */}
+        <Pressable onPress={handleCancelSession} className="py-2">
+          <Text className="text-center text-xs text-error">
             Annuler la sortie
           </Text>
         </Pressable>
-      </View>
+      </ScrollView>
     </View>
   );
 }
