@@ -113,3 +113,19 @@
 - [x] Ajouter mini card "📍 Sortie en cours" si session active
 - [x] Tap sur mini card -> ouvre Active Session
 - [x] Afficher uniquement si session active
+
+
+## FINAL POLISH (Manus - Premium Mock)
+
+### Active Session - CTA Pop
+- [x] Bouton "✅ Je suis rentré": opacity 1.0, shadow soft, height 62-70, radius 30+
+- [x] Bouton "+ 15 min": opacity 1.0, fond violet clair, shadow léger
+- [x] Jamais opacity < 0.8 sur bouton actif
+- [x] Card timer moins haute (réduire py)
+- [x] Bloc boutons collé sous card (gap 14-18)
+
+### Home - Mini Card Sortie en cours
+- [x] Afficher mini card avec temps restant: "Temps restant: HH:MM:SS"
+- [x] Tap sur mini card -> ouvre Active Session
+- [x] Afficher uniquement si session active
+- [x] Remplir l'espace vide + améliorer UX

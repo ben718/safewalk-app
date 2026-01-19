@@ -6,7 +6,7 @@ import { HeroCardPremium } from '@/components/ui/hero-card-premium';
 import { StatusCard } from '@/components/ui/status-card';
 import { GlassCard } from '@/components/ui/glass-card';
 import { useApp } from '@/lib/context/app-context';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ToastPop } from '@/components/ui/toast-pop';
 import { MaterialIcons } from '@expo/vector-icons';
 
@@ -15,6 +15,7 @@ export default function IndexScreen() {
   const { settings, currentSession } = useApp();
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
+  const [timeRemaining, setTimeRemaining] = useState('--:--:--');
 
   const hasContact = settings.emergencyContactName && settings.emergencyContactPhone;
   const statusTitle = hasContact ? 'Sécurité active' : 'Sécurité inactive';
@@ -44,6 +45,30 @@ export default function IndexScreen() {
       router.push('/active-session');
     }
   };
+
+  // Update time remaining every second
+  useEffect(() => {
+    if (!currentSession) return;
+
+    const updateTimeRemaining = () => {
+      const now = Date.now();
+      const deadline = currentSession.dueTime + currentSession.tolerance * 60 * 1000;
+      const remaining = deadline - now;
+
+      if (remaining <= 0) {
+        setTimeRemaining('En retard');
+      } else {
+        const hours = Math.floor(remaining / (1000 * 60 * 60));
+        const minutes = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((remaining % (1000 * 60)) / 1000);
+        setTimeRemaining(`${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`);
+      }
+    };
+
+    updateTimeRemaining();
+    const interval = setInterval(updateTimeRemaining, 1000);
+    return () => clearInterval(interval);
+  }, [currentSession]);
 
   return (
     <ScreenContainer
@@ -105,7 +130,7 @@ export default function IndexScreen() {
                       Sortie en cours
                     </Text>
                     <Text className="text-xs text-muted">
-                      Tap pour voir les détails
+                      Temps restant: {timeRemaining}
                     </Text>
                   </View>
                 </View>

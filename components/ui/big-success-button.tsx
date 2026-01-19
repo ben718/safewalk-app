@@ -12,6 +12,7 @@ export interface BigSuccessButtonProps {
 /**
  * BigSuccessButton - Grand bouton vert mint pour "Je suis rentré"
  * Avec icône checkmark et haptic feedback
+ * Polish: opacity 1.0, height 66, shadow forte, scale press 0.96
  */
 export function BigSuccessButton({
   label,
@@ -29,18 +30,21 @@ export function BigSuccessButton({
     <Pressable
       onPress={handlePress}
       disabled={disabled}
-      className={disabled ? 'opacity-50' : ''}
+      style={{
+        opacity: disabled ? 0.45 : 1.0,
+      }}
     >
       {({ pressed }) => (
         <View
-          className="flex-row items-center justify-center gap-3 rounded-full bg-mint py-4 px-8"
+          className="flex-row items-center justify-center gap-3 rounded-full bg-mint px-8"
           style={{
-            transform: [{ scale: pressed ? 0.97 : 1 }],
+            height: 66,
+            transform: [{ scale: pressed ? 0.96 : 1 }],
             shadowColor: '#2DE2A6',
-            shadowOffset: { width: 0, height: 6 },
-            shadowOpacity: pressed ? 0.2 : 0.15,
-            shadowRadius: 12,
-            elevation: pressed ? 5 : 4,
+            shadowOffset: { width: 0, height: 8 },
+            shadowOpacity: pressed ? 0.25 : 0.2,
+            shadowRadius: 14,
+            elevation: pressed ? 6 : 5,
           }}
         >
           <MaterialIcons

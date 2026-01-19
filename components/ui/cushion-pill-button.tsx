@@ -1,4 +1,3 @@
-import React from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { cn } from '@/lib/utils';
 import * as Haptics from 'expo-haptics';
@@ -15,6 +14,7 @@ export interface CushionPillButtonProps {
 /**
  * CushionPillButton - Bouton "gonflé" avec glossy highlight et relief
  * Variantes : primary (violet), success (vert mint), danger (rouge), secondary (bleu)
+ * Polish: opacity 1.0 pour actif, 0.45 pour désactivé, shadow forte
  */
 export function CushionPillButton({
   label,
@@ -54,10 +54,10 @@ export function CushionPillButton({
     <Pressable
       onPress={handlePress}
       disabled={disabled}
-      className={cn(
-        'rounded-full overflow-hidden',
-        disabled && 'opacity-50'
-      )}
+      style={{
+        opacity: disabled ? 0.45 : 1.0,
+      }}
+      className="rounded-full overflow-hidden"
     >
       {({ pressed }) => (
         <View
@@ -68,12 +68,12 @@ export function CushionPillButton({
             className
           )}
           style={{
-            transform: [{ scale: pressed ? 0.97 : 1 }],
+            transform: [{ scale: pressed ? 0.96 : 1 }],
             shadowColor: variant === 'danger' ? '#FF4D4D' : '#6C63FF',
-            shadowOffset: { width: 0, height: 4 },
-            shadowOpacity: pressed ? 0.15 : 0.1,
-            shadowRadius: 8,
-            elevation: pressed ? 4 : 3,
+            shadowOffset: { width: 0, height: 6 },
+            shadowOpacity: pressed ? 0.2 : 0.15,
+            shadowRadius: 10,
+            elevation: pressed ? 5 : 4,
           }}
         >
           {/* Glossy highlight */}

@@ -15,12 +15,11 @@ export default function ActiveSessionScreen() {
   const [timeLeft, setTimeLeft] = useState('--:--');
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
-
   const [isLate, setIsLate] = useState(false);
 
   useEffect(() => {
     if (!currentSession) {
-      router.push('/home');
+      router.push('/');
       return;
     }
 
@@ -57,7 +56,7 @@ export default function ActiveSessionScreen() {
     setToastMessage('Bienvenue à la maison !');
     setShowToast(true);
     setTimeout(() => {
-      router.push('/home');
+      router.push('/');
     }, 500);
   };
 
@@ -81,7 +80,7 @@ export default function ActiveSessionScreen() {
             setToastMessage('Sortie annulée');
             setShowToast(true);
             setTimeout(() => {
-              router.push('/home');
+              router.push('/');
             }, 500);
           },
         },
@@ -102,7 +101,7 @@ export default function ActiveSessionScreen() {
 
       <ScrollView
         contentContainerStyle={{ flexGrow: 1 }}
-        className="relative z-10 gap-4"
+        className="relative z-10 gap-2"
         showsVerticalScrollIndicator={false}
       >
         {/* Header */}
@@ -115,9 +114,9 @@ export default function ActiveSessionScreen() {
           </Text>
         </View>
 
-        {/* Time Display */}
+        {/* Time Display - Compact */}
         <GlassCard
-          className="items-center justify-center py-6 gap-3"
+          className="items-center justify-center py-4 gap-2"
           style={{
             backgroundColor: isLate ? 'rgba(245, 158, 11, 0.1)' : 'rgba(255, 255, 255, 0.1)',
           }}
@@ -128,13 +127,13 @@ export default function ActiveSessionScreen() {
           <Text
             className="font-bold"
             style={{
-              fontSize: 56,
+              fontSize: 52,
               color: isLate ? '#F59E0B' : '#6C63FF',
             }}
           >
             {timeLeft}
           </Text>
-          <View className="gap-1 items-center mt-2">
+          <View className="gap-1 items-center mt-1">
             <Text className="text-xs text-muted">
               Heure limite : {currentSession.dueTime ? new Date(currentSession.dueTime).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) : '--:--'}
             </Text>
@@ -144,28 +143,26 @@ export default function ActiveSessionScreen() {
           </View>
         </GlassCard>
 
-        {/* Main CTA */}
-        <View className="mt-4">
+        {/* CTA Buttons - Collés sous la card */}
+        <View className="gap-3 mt-3">
           <BigSuccessButton
             label="Je suis rentré"
             onPress={handleReturnHome}
           />
+
+          <CushionPillButton
+            label="+ 15 min"
+            onPress={handleAddTime}
+            variant="secondary"
+            size="md"
+          />
+
+          <Pressable onPress={handleCancel}>
+            <Text className="text-center text-sm font-semibold text-error">
+              Annuler la sortie
+            </Text>
+          </Pressable>
         </View>
-
-        {/* Add Time */}
-        <CushionPillButton
-          label="+ 15 min"
-          onPress={handleAddTime}
-          variant="secondary"
-          size="md"
-        />
-
-        {/* Cancel */}
-        <Pressable onPress={handleCancel} className="mt-3">
-          <Text className="text-center text-sm font-semibold text-error">
-            Annuler la sortie
-          </Text>
-        </Pressable>
       </ScrollView>
 
       {/* Toast */}
