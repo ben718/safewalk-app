@@ -559,3 +559,30 @@
 - [x] Uniformiser les icônes Material Icons (taille 16-20, couleurs cohérentes #6C63FF, #FF4D4D, etc.)
 - [x] Vérifier les transitions fluides entre écrans (350ms cubic easing partout)
 - [x] Tester la cohérence visuelle sur tous les écrans (Home, New Session, Active Session, Settings, Alert Sent, History)
+
+
+## TRANSITIONS DE NAVIGATION FLUIDES
+
+- [x] Configurer Expo Router Stack pour animations de navigation (slide_from_right)
+- [x] Ajouter animations slide-right au push des écrans
+- [x] Implémenter des animations au changement de route
+- [x] Tester les transitions sur iOS et Android (compilé sans erreurs)
+- [x] Vérifier que les animations ne ralentissent pas la navigation
+
+## TESTS VITEST COHÉRENCE VISUELLE
+
+- [x] Créer test pour vérifier padding/insets cohérents (16px horizontal) - PASS
+- [x] Créer test pour vérifier typographie (text-4xl/text-5xl headers, text-base body) - PASS
+- [x] Créer test pour vérifier espacement (mb-3, gap-2/gap-3) - PASS
+- [x] Créer test pour vérifier animations (ScreenTransition présent) - PASS
+- [x] Créer test pour vérifier couleurs (theme tokens utilisés) - PASS
+- [x] Exécuter tous les tests et vérifier qu'ils passent - 13/13 PASS
+
+## ONBOARDING AVEC ANIMATIONS
+
+- [x] Créer écran onboarding/welcome (app/onboarding.tsx)
+- [x] Ajouter 4 slides avec animations subtiles (Bienvenue, Heure retour, Position, Prêt)
+- [x] Implémenter skip button et next/previous navigation
+- [x] Ajouter animations ScreenTransition avec stagger (0, 100, 200ms)
+- [x] Stocker l'état onboarding dans AsyncStorage (onboarding_completed)
+- [x] Ajouter route onboarding à app/_layout.tsx

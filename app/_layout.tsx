@@ -82,7 +82,18 @@ export default function RootLayout() {
         <QueryClientProvider client={queryClient}>
           <AppProvider>
             {/* Stack with all routes - flow screens without nav */}
-            <Stack screenOptions={{ headerShown: false }} initialRouteName="index">
+            {/* Expo Router Stack uses default slide animation from right */}
+            <Stack
+              screenOptions={{
+                headerShown: false,
+                // Slide animation from right (default for Expo Router)
+                animation: 'slide_from_right',
+              }}
+              initialRouteName="index"
+            >
+              {/* Onboarding */}
+              <Stack.Screen name="onboarding" />
+              
               {/* Main screens with nav */}
               <Stack.Screen name="index" />
               <Stack.Screen name="settings" />
