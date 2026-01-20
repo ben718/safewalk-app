@@ -761,3 +761,40 @@
 - [x] Tests vitest : 78/78 PASS
 - [ ] Tester sur appareil réel (iOS/Android)
 - [ ] Valider la réception des SMS réels
+
+
+## PHASE 3 - NOTIFICATIONS PUSH ET PERSISTANCE
+
+### Notifications Push (expo-notifications)
+- [x] Créer hook useNotifications pour gérer les permissions
+- [x] Implémenter le scheduling des notifications locales
+- [x] Ajouter notification quand le timer expire
+- [x] Ajouter notification avant l'alerte SMS (5 min avant)
+- [ ] Tester les notifications sur appareil réel
+
+### Schémas PostgreSQL
+- [x] Créer table sessions (id, userId, startTime, limitTime, deadline, status, location)
+- [x] Créer table positions (id, sessionId, latitude, longitude, accuracy, timestamp)
+- [x] Créer table sms_logs (id, sessionId, phoneNumber, message, status, sentAt)
+- [x] Créer table userPreferences (id, userId, firstName, emergencyContact1, emergencyContact2, preferences)
+- [x] Ajouter indexes sur sessionId, userId, timestamp
+
+### Modèles Drizzle ORM
+- [x] Créer schema.ts avec définitions des tables
+- [x] Générer migrations avec drizzle-kit
+- [x] Implémenter les relations entre tables
+
+### Endpoints API de Persistance
+- [x] POST /api/safewalk/sessions/create - Créer une session
+- [x] POST /api/safewalk/positions/save - Sauvegarder une position GPS
+- [x] POST /api/safewalk/smsLogs/save - Enregistrer un SMS envoyé
+- [x] GET /api/safewalk/sessions/list - Récupérer l'historique
+- [x] GET /api/safewalk/positions/list - Récupérer les positions d'une session
+- [x] POST /api/safewalk/preferences/update - Mettre à jour les préférences
+
+### Tests et Validation
+- [x] Tester les notifications locales (intégrées dans active-session.tsx)
+- [x] Tester la persistance en base de données (endpoints tRPC)
+- [x] Tester le flux complet: timer → notification → SMS → persistance
+- [x] Tests E2E : 7/7 PASS
+- [x] Tests vitest : 78/78 PASS

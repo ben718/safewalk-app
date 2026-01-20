@@ -9,8 +9,9 @@ import { CheckInModal } from '@/components/ui/check-in-modal';
 import { useApp } from '@/lib/context/app-context';
 import { useCheckInNotifications } from '@/hooks/use-check-in-notifications';
 import { useRealTimeLocation } from '@/hooks/use-real-time-location';
+import { useNotifications } from '@/hooks/use-notifications';
 import { useRouter } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function ActiveSessionScreen() {
@@ -19,9 +20,12 @@ export default function ActiveSessionScreen() {
   const { currentSession, endSession, cancelSession, addTimeToSession, confirmCheckIn, settings } = useApp();
   const { confirmCheckIn: confirmCheckInNotif } = useCheckInNotifications();
   const { location } = useRealTimeLocation({ enabled: settings.locationEnabled });
+  const { sendNotification, scheduleNotification, cancelNotification } = useNotifications();
   const [remainingTime, setRemainingTime] = useState<string>('00:00:00');
   const [sessionState, setSessionState] = useState<'active' | 'grace' | 'overdue'>('active');
   const [showCheckInModal, setShowCheckInModal] = useState(false);
+  const timerNotificationRef = useRef<string | null>(null);
+  const alertNotificationRef = useRef<string | null>(null);
 
   useEffect(() => {
     if (!currentSession) {
@@ -47,6 +51,16 @@ export default function ActiveSessionScreen() {
         setRemainingTime(
           `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
         );
+        // Envoyer notification 5 minutes avant l'heure limite
+        const fiveMinBefore = limitTime - (5 * 60 * 1000);
+        if (now >= fiveMinBefore && now < fiveMinBefore + 1000 && !timerNotificationRef.current) {
+          timerNotificationRef.current = 'scheduled';
+          sendNotification({
+            title: '⚠️ Alerte imminente',
+            body: 'Ton heure limite approche. Confirme ton retour dans 5 minutes.',
+            data: { type: 'timer_warning' },
+          });
+        }
       } else if (now < deadline) {
         // Entre limitTime et deadline : période de grâce
         setSessionState('grace');
@@ -67,11 +81,25 @@ export default function ActiveSessionScreen() {
         setRemainingTime(
           `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
         );
+        
+        // Envoyer notification d'alerte dès que la deadline est dépassée
+        if (!alertNotificationRef.current) {
+          alertNotificationRef.current = 'triggered';
+          sendNotification({
+            title: '🚨 ALERTE',
+            body: 'Ton heure limite est dépassée. Un SMS a été envoyé à tes contacts d\'urgence.',
+            data: { type: 'alert_triggered' },
+          });
+        }
       }
     }, 1000);
 
-    return () => clearInterval(interval);
-  }, [currentSession, router]);
+    return () => {
+      clearInterval(interval);
+      if (timerNotificationRef.current) timerNotificationRef.current = null;
+      if (alertNotificationRef.current) alertNotificationRef.current = null;
+    };
+  }, [currentSession, router, sendNotification]);
 
   const handleCompleteSession = async () => {
     // Capturer la position GPS si activée

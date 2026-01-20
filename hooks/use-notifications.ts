@@ -1,0 +1,202 @@
+import { useEffect, useRef } from 'react';
+import * as Notifications from 'expo-notifications';
+
+// Configurer le gestionnaire de notifications
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldSetBadge: true,
+    shouldShowBanner: true,
+    shouldShowList: true,
+  }),
+});
+
+export interface NotificationOptions {
+  title: string;
+  body: string;
+  data?: Record<string, any>;
+  delay?: number; // en secondes
+}
+
+/**
+ * Hook pour gérer les notifications push locales
+ */
+export function useNotifications() {
+  const notificationListenerRef = useRef<any>(null);
+  const responseListenerRef = useRef<any>(null);
+
+  useEffect(() => {
+    // Demander les permissions au montage
+    (async () => {
+      await requestNotificationPermissions();
+    })();
+
+    // Écouter les notifications reçues
+    notificationListenerRef.current = (Notifications.addNotificationReceivedListener as any)(
+      (notification: any) => {
+        console.log('📬 Notification reçue:', notification);
+      }
+    );
+
+    // Écouter les réponses aux notifications (tap)
+    responseListenerRef.current = (Notifications.addNotificationResponseReceivedListener as any)(
+      (response: any) => {
+        console.log('👆 Notification tapée:', response.notification.request.content);
+      }
+    );
+
+    return () => {
+      if (notificationListenerRef.current) {
+        notificationListenerRef.current.remove();
+      }
+      if (responseListenerRef.current) {
+        responseListenerRef.current.remove();
+      }
+    };
+  }, []);
+
+  /**
+   * Demander les permissions de notification
+   */
+  const requestNotificationPermissions = async (): Promise<boolean> => {
+    try {
+      const { status } = await (Notifications.requestPermissionsAsync as any)();
+      if (status !== 'granted') {
+        console.warn('⚠️ Permission de notification refusée');
+        return false;
+      }
+      console.log('✅ Permission de notification accordée');
+      return true;
+    } catch (error) {
+      console.error('Erreur lors de la demande de permission:', error);
+      return false;
+    }
+  };
+
+  /**
+   * Envoyer une notification locale immédiate
+   */
+  const sendNotification = async (options: NotificationOptions): Promise<string | null> => {
+    try {
+      const notificationId = await Notifications.scheduleNotificationAsync({
+        content: {
+          title: options.title,
+          body: options.body,
+          data: options.data || {},
+          sound: 'default',
+          badge: 1,
+        },
+        trigger: null, // null = immédiate
+      });
+
+      console.log('📤 Notification envoyée:', options.title);
+      return notificationId;
+    } catch (error) {
+      console.error('Erreur lors de l\'envoi de la notification:', error);
+      return null;
+    }
+  };
+
+  /**
+   * Programmer une notification pour plus tard
+   */
+  const scheduleNotification = async (
+    options: NotificationOptions,
+    delaySeconds: number
+  ): Promise<string | null> => {
+    try {
+      const notificationId = await Notifications.scheduleNotificationAsync({
+        content: {
+          title: options.title,
+          body: options.body,
+          data: options.data || {},
+          sound: 'default',
+          badge: 1,
+        },
+        trigger: {
+          seconds: delaySeconds,
+        } as any,
+      });
+
+      console.log(`📅 Notification programmée dans ${delaySeconds}s:`, options.title);
+      return notificationId;
+    } catch (error) {
+      console.error('Erreur lors de la programmation de la notification:', error);
+      return null;
+    }
+  };
+
+  /**
+   * Annuler une notification programmée
+   */
+  const cancelNotification = async (notificationId: string): Promise<void> => {
+    try {
+      await Notifications.cancelScheduledNotificationAsync(notificationId);
+      console.log('❌ Notification annulée:', notificationId);
+    } catch (error) {
+      console.error('Erreur lors de l\'annulation de la notification:', error);
+    }
+  };
+
+  /**
+   * Annuler toutes les notifications programmées
+   */
+  const cancelAllNotifications = async (): Promise<void> => {
+    try {
+      await Notifications.cancelAllScheduledNotificationsAsync();
+      console.log('❌ Toutes les notifications annulées');
+    } catch (error) {
+      console.error('Erreur lors de l\'annulation des notifications:', error);
+    }
+  };
+
+  /**
+   * Envoyer une notification d'alerte timer expiré
+   */
+  const sendTimerExpiredNotification = async (): Promise<string | null> => {
+    return sendNotification({
+      title: '⏰ Temps écoulé',
+      body: 'Ton heure limite est atteinte. Confirme ton retour ou une alerte sera envoyée.',
+      data: { type: 'timer_expired' },
+    });
+  };
+
+  /**
+   * Envoyer une notification d'alerte imminente
+   */
+  const sendAlertImminent = async (minutesRemaining: number): Promise<string | null> => {
+    return sendNotification({
+      title: '⚠️ Alerte imminente',
+      body: `Alerte dans ${minutesRemaining} minute(s). Confirme ton retour maintenant.`,
+      data: { type: 'alert_imminent', minutesRemaining },
+    });
+  };
+
+  /**
+   * Programmer une notification d'alerte
+   */
+  const scheduleAlertNotification = async (
+    secondsUntilAlert: number
+  ): Promise<string | null> => {
+    return scheduleNotification(
+      {
+        title: '🚨 Alerte envoyée',
+        body: 'Ton contact d\'urgence a été notifié. Tout va bien ?',
+        data: { type: 'alert_triggered' },
+      },
+      secondsUntilAlert
+    );
+  };
+
+  return {
+    sendNotification,
+    scheduleNotification,
+    cancelNotification,
+    cancelAllNotifications,
+    sendTimerExpiredNotification,
+    sendAlertImminent,
+    scheduleAlertNotification,
+    requestNotificationPermissions,
+  };
+}
