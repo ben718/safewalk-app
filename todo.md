@@ -527,6 +527,7 @@
 - [x] Réduire les descriptions pour être plus concis
 - [x] Rendre le design plus minimaliste et clean
 - [x] Vérifier que tout tient sur un écran iPhone SE/13 sans scroll (View au lieu de ScrollView)
+- [x] Ajouter ScreenTransition animations à Settings avec stagger
 
 
 ## HARMONISATION INTERACTIONS SETTINGS
@@ -545,3 +546,16 @@
 - [x] Implémenter des transitions fluides entre les écrans (350ms, easing cubic)
 - [x] Tester les animations sur iPhone pour vérifier la fluidité
 - [x] Vérifier que les animations ne ralentissent pas l'app (pas de lag observé)
+
+
+## UNIFORMISATION COMPLÈTE (Design System)
+
+- [x] Vérifier typographie cohérente (text-4xl pour headers, text-base pour body, text-sm pour labels)
+- [x] Harmoniser l'espacement (mb-3, mb-4, gap-2, gap-3 consistent sur tous les écrans)
+- [x] Vérifier les couleurs cohérentes (primary, success, error, warning utilisées partout)
+- [x] Uniformiser les composants (GlassCard, PopTextField, CushionPillButton usage identique)
+- [x] Harmoniser les animations (ScreenTransition sur tous les éléments avec stagger)
+- [x] Vérifier padding/insets cohérents (paddingHorizontal: 16, paddingTop/bottom avec insets)
+- [x] Uniformiser les icônes Material Icons (taille 16-20, couleurs cohérentes #6C63FF, #FF4D4D, etc.)
+- [x] Vérifier les transitions fluides entre écrans (350ms cubic easing partout)
+- [x] Tester la cohérence visuelle sur tous les écrans (Home, New Session, Active Session, Settings, Alert Sent, History)

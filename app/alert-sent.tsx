@@ -1,14 +1,16 @@
 import { ScrollView, View, Text, Linking, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
-import { ScreenContainer } from '@/components/screen-container';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BubbleBackground } from '@/components/ui/bubble-background';
 import { GlassCard } from '@/components/ui/glass-card';
 import { CushionPillButton } from '@/components/ui/cushion-pill-button';
+import { ScreenTransition } from '@/components/ui/screen-transition';
 import { useApp } from '@/lib/context/app-context';
 import { MaterialIcons } from '@expo/vector-icons';
 
 export default function AlertSentScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const { settings, currentSession } = useApp();
 
   const handleCallContact = () => {
@@ -22,132 +24,157 @@ export default function AlertSentScreen() {
   };
 
   const handleIAmOkay = () => {
-    router.push('/home');
+    router.push('/');
   };
 
   return (
-    <ScreenContainer
-      className="relative pb-32"
-      containerClassName="bg-background"
-    >
+    <View className="flex-1 bg-background">
       <BubbleBackground />
 
       <ScrollView
         contentContainerStyle={{ flexGrow: 1 }}
-        className="relative z-10 gap-4"
+        className="relative z-10"
         showsVerticalScrollIndicator={false}
+        style={{
+          paddingHorizontal: 16,
+          paddingTop: insets.top + 12,
+          paddingBottom: insets.bottom + 16,
+        }}
       >
         {/* Header */}
-        <View className="gap-2 mb-4 items-center">
-          <Text className="text-5xl">🚨</Text>
-          <Text className="text-3xl font-bold text-danger">
-            Alerte envoyée
-          </Text>
-        </View>
+        <ScreenTransition delay={0} duration={350}>
+          <View className="gap-1 mb-4">
+            <Text className="text-4xl font-bold text-foreground">
+              Alerte envoyée
+            </Text>
+            <Text className="text-base text-muted">
+              Ton contact a été notifié.
+            </Text>
+          </View>
+        </ScreenTransition>
 
-        {/* Alert Details */}
-        <GlassCard className="gap-3 bg-danger/10">
-          <Text className="text-base font-semibold text-foreground">
-            Récapitulatif
-          </Text>
-          <View className="gap-2">
-            <View className="flex-row justify-between">
-              <Text className="text-sm text-muted">Contact alerté :</Text>
-              <Text className="text-sm font-semibold text-foreground">
-                {settings.emergencyContactName}
-              </Text>
-            </View>
-            <View className="flex-row justify-between">
-              <Text className="text-sm text-muted">Heure d'alerte :</Text>
-              <Text className="text-sm font-semibold text-foreground">
-                {new Date().toLocaleTimeString('fr-FR', {
-                  hour: '2-digit',
-                  minute: '2-digit',
-                })}
-              </Text>
-            </View>
-            {settings.locationEnabled && currentSession?.lastLocation && (
+        {/* Alert Details Card */}
+        <ScreenTransition delay={100} duration={350}>
+          <GlassCard className="gap-3 mb-4">
+            <Text className="text-sm font-semibold text-foreground">
+              Récapitulatif
+            </Text>
+            <View className="gap-2">
               <View className="flex-row justify-between">
-                <Text className="text-sm text-muted">Position :</Text>
+                <Text className="text-sm text-muted">Contact alerté :</Text>
                 <Text className="text-sm font-semibold text-foreground">
-                  Envoyée
+                  {settings.emergencyContactName}
                 </Text>
               </View>
-            )}
+              <View className="flex-row justify-between">
+                <Text className="text-sm text-muted">Heure d'alerte :</Text>
+                <Text className="text-sm font-semibold text-foreground">
+                  {new Date().toLocaleTimeString('fr-FR', {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                  })}
+                </Text>
+              </View>
+              {settings.locationEnabled && currentSession?.lastLocation && (
+                <View className="flex-row justify-between">
+                  <Text className="text-sm text-muted">Position :</Text>
+                  <Text className="text-sm font-semibold text-foreground">
+                    Envoyée
+                  </Text>
+                </View>
+              )}
+            </View>
+          </GlassCard>
+        </ScreenTransition>
+
+        {/* Actions Section */}
+        <ScreenTransition delay={200} duration={350}>
+          <View className="gap-2 mb-3">
+            <Text className="text-xs font-bold text-muted uppercase tracking-wider">
+              Actions
+            </Text>
           </View>
-        </GlassCard>
+        </ScreenTransition>
 
-        {/* Actions */}
-        <View className="gap-3 mt-6">
-          <Text className="text-sm font-semibold text-foreground">
-            Que faire maintenant ?
-          </Text>
+        {/* Je vais bien Button */}
+        <ScreenTransition delay={300} duration={350}>
+          <View className="mb-3">
+            <CushionPillButton
+              label="Je vais bien"
+              onPress={handleIAmOkay}
+              variant="success"
+              size="lg"
+            />
+          </View>
+        </ScreenTransition>
 
-          {/* Je vais bien */}
-          <CushionPillButton
-            label="Je vais bien"
-            onPress={handleIAmOkay}
-            variant="success"
-            size="lg"
-          />
-
-          {/* Call Contact */}
+        {/* Call Contact */}
+        <ScreenTransition delay={400} duration={350}>
           <Pressable
             onPress={handleCallContact}
-            className="p-4 rounded-2xl bg-white border border-border flex-row items-center gap-3"
-            style={{
-              backgroundColor: 'rgba(255, 255, 255, 0.94)',
-              shadowColor: '#000',
-              shadowOffset: { width: 0, height: 2 },
-              shadowOpacity: 0.08,
-              shadowRadius: 12,
-              elevation: 3,
-            }}
+            className="mb-3"
           >
-            <MaterialIcons
-              name="phone"
-              size={24}
-              color="#6C63FF"
-            />
-            <View className="flex-1">
-              <Text className="font-semibold text-foreground">
-                Appeler {settings.emergencyContactName}
-              </Text>
-              <Text className="text-xs text-muted">
-                {settings.emergencyContactPhone}
-              </Text>
-            </View>
+            {({ pressed }) => (
+              <GlassCard
+                className="gap-3"
+                style={{
+                  opacity: pressed ? 0.7 : 1,
+                }}
+              >
+                <View className="flex-row items-center gap-3">
+                  <MaterialIcons
+                    name="phone"
+                    size={20}
+                    color="#6C63FF"
+                  />
+                  <View className="flex-1">
+                    <Text className="text-base font-semibold text-foreground">
+                      Appeler {settings.emergencyContactName}
+                    </Text>
+                    <Text className="text-xs text-muted mt-1">
+                      {settings.emergencyContactPhone}
+                    </Text>
+                  </View>
+                  <MaterialIcons name="chevron-right" size={20} color="#B0B0B0" />
+                </View>
+              </GlassCard>
+            )}
           </Pressable>
+        </ScreenTransition>
 
-          {/* Call 112 */}
+        {/* Call 112 */}
+        <ScreenTransition delay={500} duration={350}>
           <Pressable
             onPress={handleCall112}
-            className="p-4 rounded-2xl bg-white border border-border flex-row items-center gap-3"
-            style={{
-              backgroundColor: 'rgba(255, 255, 255, 0.94)',
-              shadowColor: '#000',
-              shadowOffset: { width: 0, height: 2 },
-              shadowOpacity: 0.08,
-              shadowRadius: 12,
-              elevation: 3,
-            }}
           >
-            <MaterialIcons
-              name="emergency"
-              size={24}
-              color="#FF4D4D"
-            />
-            <View className="flex-1">
-              <Text className="font-semibold text-foreground">
-                Appeler les secours
-              </Text>
-              <Text className="text-xs text-muted">
-                Numéro d'urgence 112
-              </Text>
-            </View>
+            {({ pressed }) => (
+              <GlassCard
+                className="gap-3"
+                style={{
+                  opacity: pressed ? 0.7 : 1,
+                }}
+              >
+                <View className="flex-row items-center gap-3">
+                  <MaterialIcons
+                    name="emergency"
+                    size={20}
+                    color="#FF4D4D"
+                  />
+                  <View className="flex-1">
+                    <Text className="text-base font-semibold text-foreground">
+                      Appeler les secours
+                    </Text>
+                    <Text className="text-xs text-muted mt-1">
+                      Numéro d'urgence 112
+                    </Text>
+                  </View>
+                  <MaterialIcons name="chevron-right" size={20} color="#B0B0B0" />
+                </View>
+              </GlassCard>
+            )}
           </Pressable>
-        </View>
+        </ScreenTransition>
       </ScrollView>
-    </ScreenContainer>
+    </View>
   );
 }
