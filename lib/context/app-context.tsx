@@ -235,16 +235,32 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     dispatch({ type: 'SET_SESSION', payload: alertedSession });
     await AsyncStorage.setItem('safewalk_session', JSON.stringify(alertedSession));
 
-    // Simuler l'envoi SMS au contact d'urgence
+    // Envoyer les SMS aux contacts d'urgence avec la position
     const limitTimeStr = new Date(state.currentSession.limitTime).toLocaleTimeString('fr-FR', {
       hour: '2-digit',
       minute: '2-digit',
     });
-    const positionText = location
-      ? `Position: ${location.latitude.toFixed(4)}, ${location.longitude.toFixed(4)}`
-      : 'Position: non disponible';
-    const smsMessage = `ALERTE: je n'ai pas confirmé mon retour. Heure limite: ${limitTimeStr}, tolérance: ${state.currentSession.tolerance} min. ${positionText}`;
-    console.log('SMS envoyé à', state.settings.emergencyContactPhone, ':', smsMessage);
+    
+    const phoneNumbers = [];
+    if (state.settings.emergencyContactPhone) {
+      phoneNumbers.push(state.settings.emergencyContactPhone);
+    }
+    if (state.settings.emergencyContact2Phone) {
+      phoneNumbers.push(state.settings.emergencyContact2Phone);
+    }
+
+    if (phoneNumbers.length > 0) {
+      try {
+        await sendAlertSMSToMultiple(
+          phoneNumbers,
+          limitTimeStr,
+          state.currentSession.tolerance,
+          location
+        );
+      } catch (error) {
+        console.error('Erreur lors de l\'envoi des SMS:', error);
+      }
+    }
   };
 
   const checkAndTriggerAlert = async () => {

@@ -8,6 +8,7 @@ import { ScreenTransition } from '@/components/ui/screen-transition';
 import { CheckInModal } from '@/components/ui/check-in-modal';
 import { useApp } from '@/lib/context/app-context';
 import { useCheckInNotifications } from '@/hooks/use-check-in-notifications';
+import { useRealTimeLocation } from '@/hooks/use-real-time-location';
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -15,8 +16,9 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 export default function ActiveSessionScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { currentSession, endSession, cancelSession, addTimeToSession, confirmCheckIn } = useApp();
+  const { currentSession, endSession, cancelSession, addTimeToSession, confirmCheckIn, settings } = useApp();
   const { confirmCheckIn: confirmCheckInNotif } = useCheckInNotifications();
+  const { location } = useRealTimeLocation({ enabled: settings.locationEnabled });
   const [remainingTime, setRemainingTime] = useState<string>('00:00:00');
   const [sessionState, setSessionState] = useState<'active' | 'grace' | 'overdue'>('active');
   const [showCheckInModal, setShowCheckInModal] = useState(false);
@@ -72,6 +74,10 @@ export default function ActiveSessionScreen() {
   }, [currentSession, router]);
 
   const handleCompleteSession = async () => {
+    // Capturer la position GPS si activée
+    if (settings.locationEnabled && location) {
+      console.log('Position capturée:', location);
+    }
     await endSession();
     router.push('/');
   };
@@ -91,6 +97,10 @@ export default function ActiveSessionScreen() {
   };
 
   const handleCheckInConfirm = async () => {
+    // Capturer la position GPS si activée
+    if (settings.locationEnabled && location) {
+      console.log('Position capturée au check-in:', location);
+    }
     setShowCheckInModal(false);
     await confirmCheckInNotif();
   };
@@ -105,6 +115,10 @@ export default function ActiveSessionScreen() {
           text: 'Oui',
           style: 'destructive',
           onPress: async () => {
+            // Capturer la position GPS si activée
+            if (settings.locationEnabled && location) {
+              console.log('Position capturée:', location);
+            }
             await cancelSession();
             router.push('/');
           },

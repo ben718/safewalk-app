@@ -726,3 +726,38 @@
 - [x] Validation TimerAnimation (format, durée)
 - [x] Validation webhooks (statuts, payloads)
 - [x] Flow complet testé: timer -> alert -> SMS -> confirmation
+
+
+## NOUVELLES TÂCHES - GÉOLOCALISATION ET SMS
+
+### Diagnostic et correction SMS
+- [x] Diagnostiquer pourquoi les SMS ne sont pas reçus
+- [x] Vérifier la configuration Twilio (numéro de téléphone, credentials)
+- [x] Corriger le format du numéro Twilio (+33939035429)
+- [x] Tests SMS validés (7/7 PASS)
+
+### Géolocalisation en temps réel
+- [x] Implémenter expo-location pour capturer la position GPS
+- [x] Créer hook useRealTimeLocation pour tracking continu
+- [x] Intégrer dans active-session.tsx
+- [x] Capturer position au check-in et lors d'alertes
+
+### SMS avec position GPS
+- [x] Ajouter la position GPS au message SMS d'alerte
+- [x] Formater le message avec coordonnées (latitude, longitude)
+- [x] Ajouter lien Google Maps dans le SMS
+- [x] Support de 2 contacts d'urgence
+
+### Écran d'alerte avec carte
+- [x] Installer react-native-maps
+- [x] Créer composant MapView pour afficher la position
+- [x] Ajouter la carte dans alert-sent.tsx
+- [x] Afficher le marqueur de position sur la carte
+- [x] Ajouter bouton "Copier le lien" pour partager la position
+
+### Tests et validation
+- [x] Tester le flux complet avec géolocalisation
+- [x] Tests E2E : 7/7 PASS
+- [x] Tests vitest : 78/78 PASS
+- [ ] Tester sur appareil réel (iOS/Android)
+- [ ] Valider la réception des SMS réels

@@ -1,4 +1,4 @@
-import { ScrollView, View, Text, Linking, Pressable } from 'react-native';
+import { ScrollView, Text, View, Pressable, Linking } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BubbleBackground } from '@/components/ui/bubble-background';
@@ -9,11 +9,19 @@ type SMSStatus = 'sent' | 'delivered' | 'failed' | 'pending';
 import { ScreenTransition } from '@/components/ui/screen-transition';
 import { useApp } from '@/lib/context/app-context';
 import { MaterialIcons } from '@expo/vector-icons';
+import { MapViewComponent } from '@/components/ui/map-view';
+import * as Clipboard from 'expo-clipboard';
 
 export default function AlertSentScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { settings, currentSession } = useApp();
+
+  const handleCopyMapLink = async (link: string) => {
+    await Clipboard.setStringAsync(link);
+    // Toast feedback
+    console.log('Lien copié:', link);
+  };
 
   const handleCallContact = () => {
     if (settings.emergencyContactPhone) {
@@ -55,8 +63,21 @@ export default function AlertSentScreen() {
           </View>
         </ScreenTransition>
 
+        {/* Map with Location */}
+        {settings.locationEnabled && currentSession?.lastLocation && (
+          <ScreenTransition delay={100} duration={350}>
+            <View className="mb-4 rounded-3xl overflow-hidden">
+              <MapViewComponent
+                latitude={currentSession.lastLocation.latitude}
+                longitude={currentSession.lastLocation.longitude}
+                onCopyLink={handleCopyMapLink}
+              />
+            </View>
+          </ScreenTransition>
+        )}
+
         {/* Alert Details Card */}
-        <ScreenTransition delay={100} duration={350}>
+        <ScreenTransition delay={settings.locationEnabled && currentSession?.lastLocation ? 200 : 100} duration={350}>
           <GlassCard className="gap-3 mb-4">
             <Text className="text-sm font-semibold text-foreground">
               Récapitulatif
@@ -81,7 +102,7 @@ export default function AlertSentScreen() {
                 <View className="flex-row justify-between">
                   <Text className="text-sm text-muted">Position :</Text>
                   <Text className="text-sm font-semibold text-foreground">
-                    Envoyée
+                    {currentSession.lastLocation.latitude.toFixed(4)}, {currentSession.lastLocation.longitude.toFixed(4)}
                   </Text>
                 </View>
               )}
@@ -90,7 +111,7 @@ export default function AlertSentScreen() {
         </ScreenTransition>
 
         {/* Actions Section */}
-        <ScreenTransition delay={200} duration={350}>
+        <ScreenTransition delay={settings.locationEnabled && currentSession?.lastLocation ? 300 : 200} duration={350}>
           <View className="gap-2 mb-3">
             <Text className="text-xs font-bold text-muted uppercase tracking-wider">
               Actions
@@ -99,7 +120,7 @@ export default function AlertSentScreen() {
         </ScreenTransition>
 
         {/* Je vais bien Button */}
-        <ScreenTransition delay={300} duration={350}>
+        <ScreenTransition delay={settings.locationEnabled && currentSession?.lastLocation ? 400 : 300} duration={350}>
           <View className="mb-3">
             <CushionPillButton
               label="Je vais bien"
@@ -111,7 +132,7 @@ export default function AlertSentScreen() {
         </ScreenTransition>
 
         {/* Call Contact */}
-        <ScreenTransition delay={400} duration={350}>
+        <ScreenTransition delay={settings.locationEnabled && currentSession?.lastLocation ? 500 : 400} duration={350}>
           <Pressable
             onPress={handleCallContact}
             className="mb-3"
@@ -145,7 +166,7 @@ export default function AlertSentScreen() {
         </ScreenTransition>
 
         {/* Call 112 */}
-        <ScreenTransition delay={500} duration={350}>
+        <ScreenTransition delay={settings.locationEnabled && currentSession?.lastLocation ? 600 : 500} duration={350}>
           <Pressable
             onPress={handleCall112}
           >
