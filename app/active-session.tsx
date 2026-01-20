@@ -90,6 +90,11 @@ export default function ActiveSessionScreen() {
     setShowCheckInModal(false);
   };
 
+  const handleCheckInConfirm = async () => {
+    setShowCheckInModal(false);
+    await confirmCheckInNotif();
+  };
+
   const handleCancelSession = () => {
     Alert.alert(
       'Annuler la sortie',

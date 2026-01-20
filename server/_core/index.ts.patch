@@ -1,0 +1,5 @@
+// Ajouter après les autres imports:
+import webhookRoutes from '../routes/webhooks';
+
+// Ajouter après app.use('/api/sms', smsRoutes):
+app.use('/api/webhooks', webhookRoutes);

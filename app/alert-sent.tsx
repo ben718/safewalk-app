@@ -4,6 +4,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BubbleBackground } from '@/components/ui/bubble-background';
 import { GlassCard } from '@/components/ui/glass-card';
 import { CushionPillButton } from '@/components/ui/cushion-pill-button';
+type SMSStatus = 'sent' | 'delivered' | 'failed' | 'pending';
+
 import { ScreenTransition } from '@/components/ui/screen-transition';
 import { useApp } from '@/lib/context/app-context';
 import { MaterialIcons } from '@expo/vector-icons';
