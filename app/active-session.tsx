@@ -26,6 +26,7 @@ export default function ActiveSessionScreen() {
   const { triggerSOS, isLoading: sosLoading } = useSOS({
     sessionId: currentSession?.id || '',
     userId: 1,
+    location: location || undefined,
   });
   const [remainingTime, setRemainingTime] = useState<string>('00:00:00');
   const [sessionState, setSessionState] = useState<'active' | 'grace' | 'overdue'>('active');

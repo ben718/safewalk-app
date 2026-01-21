@@ -20,6 +20,7 @@ export interface UseSOSOptions {
   userId: number;
   onSuccess?: (result: SOSResult) => void;
   onError?: (error: Error) => void;
+  location?: { latitude: number; longitude: number; accuracy?: number };
 }
 
 /**
@@ -27,7 +28,7 @@ export interface UseSOSOptions {
  * Envoie SMS immédiatement à tous les contacts d'urgence avec position GPS
  */
 export function useSOS(options: UseSOSOptions) {
-  const { sessionId, userId, onSuccess, onError } = options;
+  const { sessionId, userId, onSuccess, onError, location: initialLocation } = options;
   const { sendNotification } = useNotifications();
   const { getSnapshot } = useRealTimeLocation({ enabled: true });
   const [isLoading, setIsLoading] = useState(false);
@@ -51,9 +52,15 @@ export function useSOS(options: UseSOSOptions) {
         console.warn('Erreur notification:', notifErr);
       }
 
-      // Capturer la position actuelle (snapshot)
+      // Utiliser la position passée en paramètre ou capturer une nouvelle
       console.log('📍 Capture de la position GPS...');
-      const currentLocation = await getSnapshot();
+      let currentLocation: { latitude: number; longitude: number; accuracy?: number } | undefined = initialLocation;
+      if (!currentLocation) {
+        const snapshot = await getSnapshot();
+        if (snapshot) {
+          currentLocation = snapshot;
+        }
+      }
       console.log('📍 Position capturée pour SOS:', currentLocation);
 
       if (!currentLocation) {
@@ -102,7 +109,7 @@ export function useSOS(options: UseSOSOptions) {
     } finally {
       setIsLoading(false);
     }
-  }, [sessionId, userId, getSnapshot, sendNotification, onSuccess, onError]);
+  }, [sessionId, userId, getSnapshot, sendNotification, onSuccess, onError, initialLocation]);
 
   return {
     triggerSOS,

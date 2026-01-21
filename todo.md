@@ -984,3 +984,19 @@
 - [x] Ajouter triggerAlert et location aux dépendances du useEffect
 - [x] Tests : 78/78 PASS
 - [x] SMS maintenant envoyés automatiquement à la deadline
+
+
+## BUG FIX - Bouton SOS d'urgence ne fonctionne pas (RÉSOLU)
+
+### Problème identifié
+- [x] Bouton SOS créait une nouvelle instance de useRealTimeLocation au lieu d'utiliser celle existante
+- [x] Cause : useSOS ne recevait pas la position en paramètre
+
+### Corrections appliquées
+- [x] Ajouter location en paramètre de UseSOSOptions
+- [x] Modifier useSOS pour utiliser la position passée en paramètre
+- [x] Passer location depuis active-session.tsx à useSOS
+- [x] Corriger les types TypeScript
+- [x] Mettre à jour les dépendances du useCallback
+- [x] Tests : 78/78 PASS
+- [x] Bouton SOS maintenant fonctionne correctement
