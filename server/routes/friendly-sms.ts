@@ -36,4 +36,67 @@ router.post('/alert', async (req: Request, res: Response) => {
   }
 });
 
+/**
+ * POST /api/friendly-sms/follow-up
+ * Envoyer une relance SMS friendly
+ */
+router.post('/follow-up', async (req: Request, res: Response) => {
+  try {
+    const { contacts, userName, location } = req.body;
+
+    if (!contacts || !Array.isArray(contacts) || contacts.length === 0) {
+      return res.status(400).json({ error: 'contacts required' });
+    }
+
+    if (!userName) {
+      return res.status(400).json({ error: 'userName required' });
+    }
+
+    console.log(`📤 Envoi de relances SMS friendly à ${contacts.length} contact(s)...`);
+
+    const { sendFollowUpAlertSMSToMultiple } = await import('../services/friendly-sms');
+    const results = await sendFollowUpAlertSMSToMultiple(
+      contacts,
+      userName,
+      location
+    );
+
+    return res.status(200).json({ success: true, results });
+  } catch (error) {
+    console.error('❌ Erreur relance SMS:', error);
+    return res.status(500).json({ error: 'Failed to send follow-up SMS' });
+  }
+});
+
+/**
+ * POST /api/friendly-sms/confirmation
+ * Envoyer un SMS de confirmation
+ */
+router.post('/confirmation', async (req: Request, res: Response) => {
+  try {
+    const { contacts, userName } = req.body;
+
+    if (!contacts || !Array.isArray(contacts) || contacts.length === 0) {
+      return res.status(400).json({ error: 'contacts required' });
+    }
+
+    if (!userName) {
+      return res.status(400).json({ error: 'userName required' });
+    }
+
+    console.log(`📤 Envoi de confirmations SMS à ${contacts.length} contact(s)...`);
+
+    const { sendConfirmationSMSToMultiple } = await import('../services/friendly-sms');
+    const results = await sendConfirmationSMSToMultiple(
+      contacts,
+      userName
+    );
+
+    return res.status(200).json({ success: true, results });
+  } catch (error) {
+    console.error('❌ Erreur SMS confirmation:', error);
+    return res.status(500).json({ error: 'Failed to send confirmation SMS' });
+  }
+});
+
 export default router;

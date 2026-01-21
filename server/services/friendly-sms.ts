@@ -102,7 +102,155 @@ export async function sendFriendlyAlertSMSToMultiple(
   return results;
 }
 
+/**
+ * Envoyer un SMS de relance friendly
+ * Format: SafeWalk 🫶\nToujours pas de confirmation de {userName}.\nSi tu peux, réessaye de l'appeler 🙏\n📍 {location}
+ */
+export async function sendFollowUpAlertSMS(params: AlertSMSParams): Promise<string> {
+  if (!client || !twilioPhoneNumber) {
+    console.log('📱 [MOCK SMS] Relance SMS non envoyée (Twilio non configuré)');
+    console.log(`   À: ${params.phoneNumber}`);
+    console.log(`   Utilisateur: ${params.userName}`);
+    return 'mock-sms-id';
+  }
+
+  try {
+    let message = `SafeWalk 🫶\n`;
+    message += `Toujours pas de confirmation de ${params.userName}.\n`;
+    message += `Si tu peux, réessaye de l'appeler 🙏\n`;
+    
+    if (params.location) {
+      message += `📍 https://maps.google.com/?q=${params.location.latitude},${params.location.longitude}`;
+    } else {
+      message += `📍 Position indisponible`;
+    }
+
+    console.log(`📤 Envoi SMS de relance à ${params.phoneNumber}:`);
+    console.log(message);
+
+    const result = await client.messages.create({
+      body: message,
+      from: twilioPhoneNumber,
+      to: params.phoneNumber,
+    });
+
+    console.log(`✅ SMS de relance envoyé avec succès à ${params.phoneNumber} (SID: ${result.sid})`);
+    return result.sid;
+  } catch (error) {
+    console.error(`❌ Erreur lors de l'envoi du SMS de relance à ${params.phoneNumber}:`, error);
+    throw error;
+  }
+}
+
+/**
+ * Envoyer un SMS de confirmation friendly
+ * Format: SafeWalk ✅\n{userName} vient de confirmer que tout va bien 🙂\nDésolé pour l'inquiétude !
+ */
+export async function sendConfirmationSMS(params: AlertSMSParams): Promise<string> {
+  if (!client || !twilioPhoneNumber) {
+    console.log('📱 [MOCK SMS] SMS de confirmation non envoyé (Twilio non configuré)');
+    console.log(`   À: ${params.phoneNumber}`);
+    console.log(`   Utilisateur: ${params.userName}`);
+    return 'mock-sms-id';
+  }
+
+  try {
+    const message = `SafeWalk ✅\n${params.userName} vient de confirmer que tout va bien 🙂\nDésolé pour l'inquiétude !`;
+
+    console.log(`📤 Envoi SMS de confirmation à ${params.phoneNumber}:`);
+    console.log(message);
+
+    const result = await client.messages.create({
+      body: message,
+      from: twilioPhoneNumber,
+      to: params.phoneNumber,
+    });
+
+    console.log(`✅ SMS de confirmation envoyé avec succès à ${params.phoneNumber} (SID: ${result.sid})`);
+    return result.sid;
+  } catch (error) {
+    console.error(`❌ Erreur lors de l'envoi du SMS de confirmation à ${params.phoneNumber}:`, error);
+    throw error;
+  }
+}
+
+/**
+ * Envoyer des SMS de relance à plusieurs contacts
+ */
+export async function sendFollowUpAlertSMSToMultiple(
+  contacts: Array<{ name: string; phone: string }>,
+  userName: string,
+  location?: { latitude: number; longitude: number }
+): Promise<Array<{ phone: string; messageSid: string; status: string }>> {
+  const results: Array<{ phone: string; messageSid: string; status: string }> = [];
+
+  for (const contact of contacts) {
+    try {
+      const messageSid = await sendFollowUpAlertSMS({
+        phoneNumber: contact.phone,
+        userName,
+        limitTimeStr: '', // Non utilisé pour la relance
+        location,
+      });
+
+      results.push({
+        phone: contact.phone,
+        messageSid,
+        status: 'sent',
+      });
+    } catch (error) {
+      console.error(`❌ Erreur lors de l'envoi de relance à ${contact.phone}:`, error);
+      results.push({
+        phone: contact.phone,
+        messageSid: '',
+        status: 'failed',
+      });
+    }
+  }
+
+  return results;
+}
+
+/**
+ * Envoyer des SMS de confirmation à plusieurs contacts
+ */
+export async function sendConfirmationSMSToMultiple(
+  contacts: Array<{ name: string; phone: string }>,
+  userName: string
+): Promise<Array<{ phone: string; messageSid: string; status: string }>> {
+  const results: Array<{ phone: string; messageSid: string; status: string }> = [];
+
+  for (const contact of contacts) {
+    try {
+      const messageSid = await sendConfirmationSMS({
+        phoneNumber: contact.phone,
+        userName,
+        limitTimeStr: '', // Non utilisé pour la confirmation
+      });
+
+      results.push({
+        phone: contact.phone,
+        messageSid,
+        status: 'sent',
+      });
+    } catch (error) {
+      console.error(`❌ Erreur lors de l'envoi de confirmation à ${contact.phone}:`, error);
+      results.push({
+        phone: contact.phone,
+        messageSid: '',
+        status: 'failed',
+      });
+    }
+  }
+
+  return results;
+}
+
 export default {
   sendFriendlyAlertSMS,
   sendFriendlyAlertSMSToMultiple,
+  sendFollowUpAlertSMS,
+  sendFollowUpAlertSMSToMultiple,
+  sendConfirmationSMS,
+  sendConfirmationSMSToMultiple,
 };

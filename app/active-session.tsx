@@ -34,6 +34,7 @@ export default function ActiveSessionScreen() {
   const timerNotificationRef = useRef<string | null>(null);
   const alertNotificationRef = useRef<string | null>(null);
   const alertSMSRef = useRef<string | null>(null); // Track si SMS d'alerte envoyé
+  const followUpSMSRef = useRef<string | null>(null); // Track si SMS de relance envoyé
 
   useEffect(() => {
     // Ne rediriger que si on est sur la page active-session ET qu'il n'y a pas de session
@@ -112,6 +113,38 @@ export default function ActiveSessionScreen() {
             alertSMSRef.current = 'sent';
             triggerAlert(location || undefined);
           }
+        }
+        
+        // Envoyer SMS de relance 10 min après la deadline si pas de confirmation
+        const tenMinAfterDeadline = deadline + (10 * 60 * 1000);
+        if (now >= tenMinAfterDeadline && now < tenMinAfterDeadline + 1000 && !followUpSMSRef.current && !currentSession.checkInConfirmed) {
+          followUpSMSRef.current = 'sent';
+          console.log('📤 Envoi SMS de relance...');
+          // Importer et appeler sendFollowUpAlertSMS
+          import('@/lib/services/follow-up-sms-client').then(({ sendFollowUpAlertSMS }) => {
+            const contacts = [];
+            if (settings.emergencyContactPhone) {
+              contacts.push({
+                name: settings.emergencyContactName || 'Contact 1',
+                phone: settings.emergencyContactPhone,
+              });
+            }
+            if (settings.emergencyContact2Phone) {
+              contacts.push({
+                name: settings.emergencyContact2Name || 'Contact 2',
+                phone: settings.emergencyContact2Phone,
+              });
+            }
+            if (contacts.length > 0) {
+              sendFollowUpAlertSMS({
+                contacts,
+                userName: settings.firstName,
+                location: location || undefined,
+              }).catch((error) => {
+                console.error('Erreur relance SMS:', error);
+              });
+            }
+          });
         }
       }
     }, 1000);

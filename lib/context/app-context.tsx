@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { sendFriendlyAlertSMS } from '../services/friendly-sms-client';
+import { sendFollowUpAlertSMS, sendConfirmationSMS } from '../services/follow-up-sms-client';
 
 export interface UserSettings {
   firstName: string;
@@ -306,18 +307,44 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     if (!state.currentSession) return;
 
     // Marquer le check-in comme confirmé
-    // CORRECTION BUG #3: Si check-in confirmé, deadline = limitTime (pas de tolérance)
     const updatedSession: Session = {
       ...state.currentSession,
       checkInConfirmed: true,
       checkInConfirmedAt: Date.now(),
-      // CORRECTION BUG #3: Annuler la tolérance en mettant deadline = limitTime
       deadline: state.currentSession.limitTime,
       checkInOk: true,
     };
 
     dispatch({ type: 'SET_SESSION', payload: updatedSession });
     await AsyncStorage.setItem('safewalk_session', JSON.stringify(updatedSession));
+
+    // Envoyer SMS de confirmation SEULEMENT si alerte a été déclenchée
+    if (state.currentSession.status === 'overdue' || state.currentSession.alertTriggeredAt) {
+      try {
+        const contacts = [];
+        if (state.settings.emergencyContactPhone) {
+          contacts.push({
+            name: state.settings.emergencyContactName || 'Contact 1',
+            phone: state.settings.emergencyContactPhone,
+          });
+        }
+        if (state.settings.emergencyContact2Phone) {
+          contacts.push({
+            name: state.settings.emergencyContact2Name || 'Contact 2',
+            phone: state.settings.emergencyContact2Phone,
+          });
+        }
+
+        if (contacts.length > 0) {
+          await sendConfirmationSMS({
+            contacts,
+            userName: state.settings.firstName,
+          });
+        }
+      } catch (error) {
+        console.error('Erreur lors de l\'envoi du SMS de confirmation:', error);
+      }
+    }
   };
 
   const deleteAllData = async () => {
