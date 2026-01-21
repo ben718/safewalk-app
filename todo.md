@@ -891,3 +891,96 @@
 - [x] Supprimer tolerance des schémas de base de données (sessions, userPreferences)
 - [x] Corriger les endpoints tRPC (sessions.create, preferences.update)
 - [x] Tests : 78/78 PASS
+
+
+## PHASE 5 - PUBLICATION SUR LES STORES
+
+### 1. Préparation Technique (CRITIQUE)
+- [ ] Augmenter la version dans app.config.ts (ex: 1.0.0 → 1.0.1)
+- [ ] Vérifier que tous les tests passent (npm test)
+- [ ] Vérifier qu'il n'y a pas d'erreurs TypeScript (npx tsc --noEmit)
+- [ ] Vérifier que l'app fonctionne sur Expo Go (iOS et Android)
+- [ ] Tester tous les flux critiques : timer, SMS, SOS, notifications
+
+### 2. Configuration iOS (App Store)
+- [ ] Créer un compte Apple Developer ($99/an)
+- [ ] Créer un identifiant d'équipe (Team ID)
+- [ ] Créer un certificat de signature (Certificate)
+- [ ] Créer un profil de provisioning (Provisioning Profile)
+- [ ] Configurer app.config.ts avec bundleIdentifier correct
+- [ ] Générer la clé de signature (signing key)
+- [ ] Créer un build EAS (Expo Application Services) : eas build --platform ios
+- [ ] Tester le build sur un appareil réel
+- [ ] Soumettre à l'App Store Review
+
+### 3. Configuration Android (Google Play)
+- [ ] Créer un compte Google Play Developer ($25 unique)
+- [ ] Générer une clé de signature (keystore)
+- [ ] Configurer app.config.ts avec package name correct
+- [ ] Créer un build EAS : eas build --platform android
+- [ ] Tester le build sur un appareil réel
+- [ ] Soumettre à Google Play Review
+
+### 4. Contenu pour les Stores
+- [ ] Rédiger description courte (80 caractères max)
+- [ ] Rédiger description longue (4000 caractères max)
+- [ ] Préparer 5-8 screenshots (iPhone 6.5" et Android)
+- [ ] Créer une icône app 1024x1024px (PNG)
+- [ ] Créer une image de bannière (1280x720px)
+- [ ] Rédiger les notes de version (changelog)
+- [ ] Définir les catégories (Safety, Utilities)
+- [ ] Ajouter les mots-clés de recherche
+
+### 5. Conformité & Légalité
+- [ ] Rédiger une Politique de Confidentialité
+- [ ] Rédiger les Conditions d'Utilisation
+- [ ] Vérifier la conformité RGPD (données personnelles)
+- [ ] Vérifier la conformité avec les lois locales
+- [ ] Ajouter les mentions légales dans l'app
+- [ ] Tester les permissions (localisation, notifications, SMS)
+
+### 6. Sécurité & Performance
+- [ ] Vérifier que les secrets (Twilio) ne sont pas exposés
+- [ ] Vérifier que les données sensibles sont chiffrées
+- [ ] Tester la performance sur connexion lente (3G)
+- [ ] Tester la batterie (consommation GPS)
+- [ ] Vérifier la taille du bundle (< 100MB)
+- [ ] Tester les crashs et les erreurs
+
+### 7. Optimisation App Store
+- [ ] Optimiser le titre (SafeWalk - Sécurité)
+- [ ] Optimiser les mots-clés (safety, security, emergency, SMS)
+- [ ] Ajouter des reviews/testimonials
+- [ ] Configurer les prix (gratuit ou payant)
+- [ ] Configurer les régions de distribution
+- [ ] Planifier la date de lancement
+
+### 8. Post-Publication
+- [ ] Monitorer les reviews et ratings
+- [ ] Répondre aux commentaires utilisateurs
+- [ ] Tracker les crashes (Sentry, Firebase)
+- [ ] Analyser l'utilisation (Google Analytics)
+- [ ] Planifier les mises à jour (bug fixes, features)
+- [ ] Maintenir la documentation
+
+### Ressources utiles
+- Expo EAS Build: https://docs.expo.dev/build/introduction/
+- App Store Connect: https://appstoreconnect.apple.com/
+- Google Play Console: https://play.google.com/console/
+- Apple Developer: https://developer.apple.com/
+- Google Play Policies: https://play.google.com/about/developer-content-policy/
+
+
+## BUG FIX - SMS non envoyés après alerte (RÉSOLU)
+
+### Problème identifié
+- [x] Quand la deadline expire, notification locale envoyée mais pas de SMS
+- [x] Cause : triggerAlert() n'était pas appelé dans active-session.tsx
+
+### Corrections appliquées
+- [x] Ajouter triggerAlert à la destructuration du contexte
+- [x] Ajouter alertSMSRef pour tracker si SMS envoyé
+- [x] Appeler triggerAlert(location) quand deadline dépassée
+- [x] Ajouter triggerAlert et location aux dépendances du useEffect
+- [x] Tests : 78/78 PASS
+- [x] SMS maintenant envoyés automatiquement à la deadline

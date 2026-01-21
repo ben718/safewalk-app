@@ -19,7 +19,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 export default function ActiveSessionScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { currentSession, endSession, cancelSession, addTimeToSession, confirmCheckIn, settings } = useApp();
+  const { currentSession, endSession, cancelSession, addTimeToSession, confirmCheckIn, settings, triggerAlert } = useApp();
   const { confirmCheckIn: confirmCheckInNotif } = useCheckInNotifications();
   const { location } = useRealTimeLocation({ enabled: settings.locationEnabled });
   const { sendNotification, scheduleNotification, cancelNotification } = useNotifications();
@@ -32,6 +32,7 @@ export default function ActiveSessionScreen() {
   const [showCheckInModal, setShowCheckInModal] = useState(false);
   const timerNotificationRef = useRef<string | null>(null);
   const alertNotificationRef = useRef<string | null>(null);
+  const alertSMSRef = useRef<string | null>(null); // Track si SMS d'alerte envoyé
 
   useEffect(() => {
     // Ne rediriger que si on est sur la page active-session ET qu'il n'y a pas de session
@@ -96,7 +97,7 @@ export default function ActiveSessionScreen() {
           `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
         );
         
-        // Envoyer notification d'alerte dès que la deadline est dépassée
+        // Envoyer notification d'alerte ET SMS dès que la deadline est dépassée
         if (!alertNotificationRef.current) {
           alertNotificationRef.current = 'triggered';
           sendNotification({
@@ -104,6 +105,12 @@ export default function ActiveSessionScreen() {
             body: 'Ton heure limite est dépassée. Un SMS a été envoyé à tes contacts d\'urgence.',
             data: { type: 'alert_triggered' },
           });
+          
+          // Envoyer les SMS d'alerte
+          if (!alertSMSRef.current && location) {
+            alertSMSRef.current = 'sent';
+            triggerAlert(location);
+          }
         }
       }
     }, 1000);
@@ -113,7 +120,7 @@ export default function ActiveSessionScreen() {
       if (timerNotificationRef.current) timerNotificationRef.current = null;
       if (alertNotificationRef.current) alertNotificationRef.current = null;
     };
-  }, [currentSession, router, sendNotification]);
+  }, [currentSession, router, sendNotification, triggerAlert, location]);
 
   const handleCompleteSession = async () => {
     // Capturer la position GPS si activée
