@@ -1310,3 +1310,34 @@
 - [ ] Sur téléphone: /health -> ok (test utilisateur)
 - [ ] Dans l'app: Test SMS -> SMS reçu (test utilisateur)
 - [ ] Déclencher alerte -> SMS reçu (test utilisateur)
+
+
+## BUG CRITIQUE : TEST SMS OK, MAIS ALERTE RETARD + SOS N'ENVOIENT PAS
+
+### Problème
+- [x] Test SMS fonctionne (Twilio + backend OK)
+- [ ] Alerte Retard n'envoie pas de SMS
+- [ ] SOS n'envoie pas de SMS
+
+### Refactor obligatoire
+- [x] Créer smsService.ts avec sendEmergencySMS unique
+- [x] Normaliser numéro en E.164 (+336/+337)
+- [x] Brancher Test SMS sur sendEmergencySMS (settings.tsx)
+- [x] Brancher SOS sur sendEmergencySMS (hooks/use-sos.ts)
+- [x] Brancher Alerte Retard sur sendEmergencySMS (app-context.tsx)
+
+### UI / États
+- [ ] Ajouter state smsStatus (idle/sending/sent/failed)
+- [ ] Afficher "Envoi SMS..." pendant sending
+- [ ] Afficher "✅ Contacts notifiés à HH:MM" si sent
+- [ ] Afficher "❌ Échec: {error}" + bouton Réessayer si failed
+- [ ] Supprimer setNotified(true) sans await
+
+### Tests
+- [x] Tests unitaires sendEmergencySMS (5/5 passés)
+- [x] Normalisation E.164 validée (+33612345678)
+- [x] Validation numéros français (06/07) validée
+- [ ] Test SMS => reçu (test utilisateur sur Expo Go)
+- [ ] SOS => reçu (test utilisateur sur Expo Go)
+- [ ] Alerte Retard (1 min + tolérance 0) => reçu (test utilisateur sur Expo Go)
+- [ ] Sans contact => UI bloque (test utilisateur sur Expo Go)

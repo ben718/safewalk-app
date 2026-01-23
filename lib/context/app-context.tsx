@@ -2,6 +2,7 @@ import React, { createContext, useContext, useReducer, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { sendFriendlyAlertSMS } from '../services/friendly-sms-client';
 import { sendFollowUpAlertSMS, sendConfirmationSMS } from '../services/follow-up-sms-client';
+import { useNotifications } from '@/hooks/use-notifications';
 
 export interface UserSettings {
   firstName: string;
@@ -108,6 +109,7 @@ function appReducer(state: State, action: Action): State {
 
 export function AppProvider({ children }: { children: React.ReactNode }) {
   const [state, dispatch] = useReducer(appReducer, initialState);
+  const { sendNotification } = useNotifications();
 
   // Load data on mount
   useEffect(() => {
@@ -224,18 +226,14 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   };
 
   const triggerAlert = async (location?: { latitude: number; longitude: number }) => {
-    // Garde-fou anti-spam : bloquer si SMS envoyé il y a moins de 60s
-    const { canSendSMS } = await import('@/lib/utils');
-    if (!canSendSMS('alert', 60)) {
-      console.warn('🚫 [triggerAlert] SMS bloqué par anti-spam');
-      return;
-    }
-    
     console.log('🚨 [triggerAlert] Début de triggerAlert');
     console.log('📋 [triggerAlert] Settings:', state.settings);
     console.log('📋 [triggerAlert] Session:', state.currentSession);
     console.log('📋 [triggerAlert] Location:', location);
+    
     if (!state.currentSession) return;
+    
+    // Marquer la session comme overdue
     const alertedSession: Session = {
       ...state.currentSession,
       status: 'overdue',
@@ -245,60 +243,62 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     dispatch({ type: 'SET_SESSION', payload: alertedSession });
     await AsyncStorage.setItem('safewalk_session', JSON.stringify(alertedSession));
 
-    // Envoyer les SMS aux contacts d'urgence avec la position
-    const limitTimeStr = new Date(state.currentSession.limitTime).toLocaleTimeString('fr-FR', {
-      hour: '2-digit',
-      minute: '2-digit',
+    // Notification locale
+    sendNotification({
+      title: '🚨 Oups... on a prévenu ton contact',
+      body: 'Tu n\'as pas confirmé ton retour à temps. Rassure-les vite !',
+      data: { type: 'alert_triggered' },
     });
     
-    const phoneNumbers = [];
-    if (state.settings.emergencyContactPhone) {
-      phoneNumbers.push(state.settings.emergencyContactPhone);
-    }
-    if (state.settings.emergencyContact2Phone) {
-      phoneNumbers.push(state.settings.emergencyContact2Phone);
-    }
-
-    console.log('📞 [triggerAlert] Numéros de téléphone:', phoneNumbers);
-    if (phoneNumbers.length === 0) {
+    // Vérifier qu'il y a au moins un contact
+    if (!state.settings.emergencyContactPhone && !state.settings.emergencyContact2Phone) {
       console.error('❌ [triggerAlert] AUCUN CONTACT CONFIGURÉ ! Les SMS ne seront pas envoyés.');
       return;
     }
 
-    if (phoneNumbers.length > 0) {
-      const contacts = [];
-      try {
-        if (state.settings.emergencyContactPhone) {
-          contacts.push({
-            name: state.settings.emergencyContactName,
-            phone: state.settings.emergencyContactPhone,
-          });
-        }
-        if (state.settings.emergencyContact2Phone) {
-          contacts.push({
-            name: state.settings.emergencyContact2Name || '',
-            phone: state.settings.emergencyContact2Phone,
-          });
-        }
-
-        console.log('📤 [triggerAlert] Appel sendFriendlyAlertSMS avec:', { contacts, userName: state.settings.firstName, limitTimeStr, note: state.currentSession.note, location });
-        const result = await sendFriendlyAlertSMS({
-          contacts,
-          userName: state.settings.firstName,
-          limitTimeStr,
+    // Envoyer SMS via sendEmergencySMS
+    const { sendEmergencySMS } = await import('@/lib/services/sms-service');
+    
+    try {
+      // Envoyer au contact 1
+      if (state.settings.emergencyContactPhone) {
+        console.log('📤 [triggerAlert] Envoi SMS au contact 1...');
+        const result1 = await sendEmergencySMS({
+          reason: 'alert',
+          contactName: state.settings.emergencyContactName || 'Contact',
+          contactPhone: state.settings.emergencyContactPhone,
+          firstName: state.settings.firstName,
           note: state.currentSession.note,
           location,
         });
-        console.log('✅ [triggerAlert] Résultat sendFriendlyAlertSMS:', result);
-      } catch (error) {
-        console.error('❌ ERREUR CRITIQUE: Échec de l\'envoi des SMS d\'alerte');
-        console.error('📋 Détails de l\'erreur:', error);
-        console.error('📋 Contacts:', contacts);
-        console.error('📋 Localisation:', location);
         
-        // TODO: Afficher un toast d'erreur à l'utilisateur
-        // Alert.alert('Erreur SMS', 'Impossible d\'envoyer les SMS. Veuillez contacter vos proches manuellement.');
+        if (result1.ok) {
+          console.log('✅ [triggerAlert] SMS envoyé au contact 1 (SID:', result1.sid, ')');
+        } else {
+          console.error('❌ [triggerAlert] Échec envoi SMS au contact 1:', result1.error);
+        }
       }
+      
+      // Envoyer au contact 2
+      if (state.settings.emergencyContact2Phone) {
+        console.log('📤 [triggerAlert] Envoi SMS au contact 2...');
+        const result2 = await sendEmergencySMS({
+          reason: 'alert',
+          contactName: state.settings.emergencyContact2Name || 'Contact 2',
+          contactPhone: state.settings.emergencyContact2Phone,
+          firstName: state.settings.firstName,
+          note: state.currentSession.note,
+          location,
+        });
+        
+        if (result2.ok) {
+          console.log('✅ [triggerAlert] SMS envoyé au contact 2 (SID:', result2.sid, ')');
+        } else {
+          console.error('❌ [triggerAlert] Échec envoi SMS au contact 2:', result2.error);
+        }
+      }
+    } catch (error) {
+      console.error('❌ [triggerAlert] ERREUR CRITIQUE:', error);
     }
   };
 

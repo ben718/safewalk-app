@@ -1,8 +1,8 @@
 import { useCallback, useState } from 'react';
 import { useNotifications } from './use-notifications';
 import { useRealTimeLocation } from './use-real-time-location';
-import { API_BASE_URL } from '@/lib/config/api';
-import axios from 'axios';
+import { sendEmergencySMS } from '@/lib/services/sms-service';
+import { useApp } from '@/lib/context/app-context';
 
 export interface SOSResult {
   success: boolean;
@@ -32,6 +32,7 @@ export function useSOS(options: UseSOSOptions) {
   const { sessionId, userId, onSuccess, onError, location: initialLocation } = options;
   const { sendNotification } = useNotifications();
   const { getSnapshot } = useRealTimeLocation({ enabled: true });
+  const { settings, currentSession } = useApp();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -39,14 +40,6 @@ export function useSOS(options: UseSOSOptions) {
     try {
       setIsLoading(true);
       setError(null);
-
-      // Garde-fou anti-spam : bloquer si SOS envoyé il y a moins de 60s
-      const { canSendSMS } = await import('@/lib/utils');
-      if (!canSendSMS('sos', 60)) {
-        console.warn('🚫 [SOS] SMS bloqué par anti-spam');
-        setIsLoading(false);
-        return;
-      }
 
       console.log('🚨 Déclenchement SOS pour session:', sessionId);
 
@@ -77,39 +70,84 @@ export function useSOS(options: UseSOSOptions) {
         console.warn('⚠️ Position non disponible, envoi SOS sans coordonnées');
       }
 
-      // Préparer les données
-      const sosData = {
-        sessionId,
-        userId,
-        latitude: currentLocation?.latitude,
-        longitude: currentLocation?.longitude,
-        accuracy: currentLocation?.accuracy,
+      // Vérifier qu'il y a au moins un contact
+      if (!settings.emergencyContactPhone && !settings.emergencyContact2Phone) {
+        throw new Error('Aucun contact d\'urgence configuré');
+      }
+
+      const smsResults: Array<{
+        contact: string;
+        phone: string;
+        status: 'sent' | 'failed';
+        messageSid?: string;
+      }> = [];
+
+      // Envoyer SMS au contact 1
+      if (settings.emergencyContactPhone) {
+        console.log('📤 [SOS] Envoi SMS au contact 1...');
+        const result1 = await sendEmergencySMS({
+          reason: 'sos',
+          contactName: settings.emergencyContactName || 'Contact',
+          contactPhone: settings.emergencyContactPhone,
+          firstName: settings.firstName,
+          note: currentSession?.note,
+          location: currentLocation,
+        });
+
+        smsResults.push({
+          contact: settings.emergencyContactName || 'Contact 1',
+          phone: settings.emergencyContactPhone,
+          status: result1.ok ? 'sent' : 'failed',
+          messageSid: result1.sid,
+        });
+
+        if (result1.ok) {
+          console.log('✅ [SOS] SMS envoyé au contact 1 (SID:', result1.sid, ')');
+        } else {
+          console.error('❌ [SOS] Échec envoi SMS au contact 1:', result1.error);
+        }
+      }
+
+      // Envoyer SMS au contact 2
+      if (settings.emergencyContact2Phone) {
+        console.log('📤 [SOS] Envoi SMS au contact 2...');
+        const result2 = await sendEmergencySMS({
+          reason: 'sos',
+          contactName: settings.emergencyContact2Name || 'Contact 2',
+          contactPhone: settings.emergencyContact2Phone,
+          firstName: settings.firstName,
+          note: currentSession?.note,
+          location: currentLocation,
+        });
+
+        smsResults.push({
+          contact: settings.emergencyContact2Name || 'Contact 2',
+          phone: settings.emergencyContact2Phone,
+          status: result2.ok ? 'sent' : 'failed',
+          messageSid: result2.sid,
+        });
+
+        if (result2.ok) {
+          console.log('✅ [SOS] SMS envoyé au contact 2 (SID:', result2.sid, ')');
+        } else {
+          console.error('❌ [SOS] Échec envoi SMS au contact 2:', result2.error);
+        }
+      }
+
+      // Vérifier si au moins un SMS a été envoyé
+      const successCount = smsResults.filter(r => r.status === 'sent').length;
+      if (successCount === 0) {
+        throw new Error('Échec de l\'envoi de tous les SMS');
+      }
+
+      const result: SOSResult = {
+        success: true,
+        message: `SOS envoyé à ${successCount} contact(s)`,
+        smsResults,
       };
 
-      console.log('📤 Envoi SOS avec données:', sosData);
-
-      // Appeler l'endpoint SOS
-      console.log('🔗 URL API:', API_BASE_URL);
-
-      const response = await axios.post(
-        `${API_BASE_URL}/api/sos/trigger`,
-        sosData,
-        {
-          timeout: 30000,
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
-      );
-
-      console.log('✅ Réponse SOS:', response.data);
-
-      if (response.data.success) {
-        console.log('✅ Alerte SOS déclenchée avec succès:', response.data);
-        onSuccess?.(response.data);
-      } else {
-        throw new Error(response.data.error || 'Erreur lors du déclenchement SOS');
-      }
+      console.log('✅ Alerte SOS déclenchée avec succès:', result);
+      onSuccess?.(result);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erreur inconnue';
       console.error('❌ Erreur SOS:', errorMessage);
@@ -118,7 +156,7 @@ export function useSOS(options: UseSOSOptions) {
     } finally {
       setIsLoading(false);
     }
-  }, [sessionId, userId, getSnapshot, sendNotification, onSuccess, onError, initialLocation]);
+  }, [sessionId, userId, getSnapshot, sendNotification, settings, currentSession, onSuccess, onError, initialLocation]);
 
   return {
     triggerSOS,

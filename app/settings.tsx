@@ -10,7 +10,8 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { useState, useEffect } from 'react';
 import { ToastPop } from '@/components/ui/toast-pop';
 import { validatePhoneNumber, formatPhoneInput, cleanPhoneNumber } from '@/lib/utils';
-import { sendSMS, checkHealth } from '@/lib/services/api-client';
+import { checkHealth } from '@/lib/services/api-client';
+import { sendEmergencySMS } from '@/lib/services/sms-service';
 import { ActivityIndicator } from 'react-native';
 
 export default function SettingsScreen() {
@@ -174,11 +175,13 @@ export default function SettingsScreen() {
 
       console.log('✅ API SMS OK, envoi du SMS de test...');
 
-      // Envoyer le SMS de test
-      const result = await sendSMS(
-        cleanedPhone,
-        `Test SafeWalk: Ceci est un SMS de test envoyé depuis l'app. Tout fonctionne ! 🚀`
-      );
+      // Envoyer le SMS de test via sendEmergencySMS
+      const result = await sendEmergencySMS({
+        reason: 'test',
+        contactName: contactName || 'Contact',
+        contactPhone: cleanedPhone,
+        firstName: firstName,
+      });
 
       if (result.ok) {
         console.log('✅ SMS de test envoyé avec succès:', result.sid);

@@ -32,8 +32,21 @@ export function validatePhoneNumber(phone: string): boolean {
   if (!phone || phone.trim() === '') {
     return false;
   }
-  const phoneRegex = /^\+33[0-9]{9}$/;
-  return phoneRegex.test(phone.trim());
+  const cleaned = phone.trim();
+  
+  // Format international: +33 suivi de 9 chiffres
+  const internationalRegex = /^\+33[0-9]{9}$/;
+  if (internationalRegex.test(cleaned)) {
+    return true;
+  }
+  
+  // Format français: 06 ou 07 suivi de 8 chiffres (10 chiffres au total)
+  const frenchRegex = /^0[67][0-9]{8}$/;
+  if (frenchRegex.test(cleaned)) {
+    return true;
+  }
+  
+  return false;
 }
 
 /**
