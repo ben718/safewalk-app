@@ -1341,3 +1341,18 @@
 - [ ] SOS => reçu (test utilisateur sur Expo Go)
 - [ ] Alerte Retard (1 min + tolérance 0) => reçu (test utilisateur sur Expo Go)
 - [ ] Sans contact => UI bloque (test utilisateur sur Expo Go)
+
+
+## AMÉLIORATION : MESSAGES SMS PLUS CLAIRS ET FRIENDLY
+
+### Problème
+- [ ] Messages SMS actuels trop techniques/froids
+- [ ] Besoin de messages plus clairs et rassurants
+- [ ] Ton plus friendly et humain
+
+### Messages à améliorer
+- [x] Test SMS ("Test réussi ! Tu recevras un message si...")
+- [x] Alerte retard ("Salut ! ... n'a pas confirmé son retour...")
+- [x] SOS ("URGENCE ... a déclenché le bouton SOS !")
+- [x] Relance (follow-up) ("Relance ... n'a toujours pas confirmé...")
+- [x] Confirmation "Je vais bien" ("... est bien rentré ! Merci d'être là...")

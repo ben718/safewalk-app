@@ -60,43 +60,43 @@ function buildMessage(options: SendEmergencySMSOptions): string {
   
   switch (reason) {
     case 'test':
-      return `Test SafeWalk: Ceci est un SMS de test envoyé depuis l'app. Tout fonctionne ! 🚀`;
+      return `✅ SafeWalk - Test réussi !\n\n${userName} a bien configuré ce numéro comme contact d'urgence.\n\nTu recevras un message si ${userName} ne rentre pas à l'heure prévue. 🙏`;
     
     case 'alert':
-      let alertMsg = `🚨 ALERTE SafeWalk\n\n${userName} n'a pas confirmé son retour à l'heure prévue.`;
+      let alertMsg = `🔔 SafeWalk - Alerte\n\nSalut ! ${userName} n'a pas confirmé son retour à l'heure prévue.`;
       if (note) {
-        alertMsg += `\n\nDestination: ${note}`;
+        alertMsg += `\n\nOù : ${note}`;
       }
       if (location) {
         const mapsUrl = `https://www.google.com/maps?q=${location.latitude},${location.longitude}`;
-        alertMsg += `\n\nDernière position connue:\n${mapsUrl}`;
+        alertMsg += `\n\nDernière position :\n${mapsUrl}`;
       }
-      alertMsg += `\n\nMerci de vérifier que tout va bien.`;
+      alertMsg += `\n\nPeux-tu vérifier que tout va bien ? Merci ! 🙏`;
       return alertMsg;
     
     case 'sos':
-      let sosMsg = `🆘 SOS SafeWalk\n\n${userName} a déclenché une alerte SOS d'urgence !`;
+      let sosMsg = `🆘 SafeWalk - URGENCE\n\n${userName} a déclenché le bouton SOS !`;
       if (note) {
-        sosMsg += `\n\nDestination: ${note}`;
+        sosMsg += `\n\nOù : ${note}`;
       }
       if (location) {
         const mapsUrl = `https://www.google.com/maps?q=${location.latitude},${location.longitude}`;
-        sosMsg += `\n\nPosition actuelle:\n${mapsUrl}`;
+        sosMsg += `\n\nPosition actuelle :\n${mapsUrl}`;
       }
-      sosMsg += `\n\nContactez-le immédiatement ou appelez les secours si nécessaire.`;
+      sosMsg += `\n\nContacte-le MAINTENANT ou appelle les secours si besoin. 🚨`;
       return sosMsg;
     
     case 'followup':
-      let followupMsg = `⚠️ RELANCE SafeWalk\n\n${userName} n'a toujours pas confirmé son retour (10 minutes après l'heure limite).`;
+      let followupMsg = `⏰ SafeWalk - Relance\n\n${userName} n'a toujours pas confirmé son retour (10 min après l'heure limite).`;
       if (location) {
         const mapsUrl = `https://www.google.com/maps?q=${location.latitude},${location.longitude}`;
-        followupMsg += `\n\nDernière position:\n${mapsUrl}`;
+        followupMsg += `\n\nDernière position :\n${mapsUrl}`;
       }
-      followupMsg += `\n\nMerci de le contacter rapidement.`;
+      followupMsg += `\n\nMerci de le contacter rapidement. 🙏`;
       return followupMsg;
     
     case 'confirmation':
-      return `✅ SafeWalk\n\n${userName} a confirmé qu'il va bien. Tout est OK ! 😊`;
+      return `✅ SafeWalk\n\n${userName} est bien rentré ! Tout va bien. 😊\n\nMerci d'être là pour lui. 🙏`;
     
     default:
       return `SafeWalk: Message d'urgence de ${userName}`;
