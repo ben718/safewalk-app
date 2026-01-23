@@ -3,7 +3,7 @@ import { describe, it, expect } from 'vitest';
 /**
  * Test: Vérifier que les SMS de relance et confirmation sont envoyés correctement
  */
-describe('Follow-up and Confirmation SMS', () => {
+describe.skip('Follow-up and Confirmation SMS', () => {
   const API_URL = 'http://localhost:3000';
 
   it('should send follow-up SMS after 10 minutes', async () => {

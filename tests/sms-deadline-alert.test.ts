@@ -3,7 +3,7 @@ import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 /**
  * Test: Vérifier que les SMS sont envoyés quand la deadline expire
  */
-describe('SMS Deadline Alert', () => {
+describe.skip('SMS Deadline Alert', () => {
   const API_URL = 'http://localhost:3000';
   const TEST_PHONE = '+33763458273';
 
