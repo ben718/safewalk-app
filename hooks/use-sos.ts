@@ -1,6 +1,7 @@
 import { useCallback, useState } from 'react';
 import { useNotifications } from './use-notifications';
 import { useRealTimeLocation } from './use-real-time-location';
+import { API_BASE_URL } from '@/lib/config/api';
 import axios from 'axios';
 
 export interface SOSResult {
@@ -79,11 +80,10 @@ export function useSOS(options: UseSOSOptions) {
       console.log('📤 Envoi SOS avec données:', sosData);
 
       // Appeler l'endpoint SOS
-      const apiUrl = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3000';
-      console.log('🔗 URL API:', apiUrl);
+      console.log('🔗 URL API:', API_BASE_URL);
 
       const response = await axios.post(
-        `${apiUrl}/api/sos/trigger`,
+        `${API_BASE_URL}/api/sos/trigger`,
         sosData,
         {
           timeout: 30000,

@@ -252,6 +252,12 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       phoneNumbers.push(state.settings.emergencyContact2Phone);
     }
 
+    console.log('📞 [triggerAlert] Numéros de téléphone:', phoneNumbers);
+    if (phoneNumbers.length === 0) {
+      console.error('❌ [triggerAlert] AUCUN CONTACT CONFIGURÉ ! Les SMS ne seront pas envoyés.');
+      return;
+    }
+
     if (phoneNumbers.length > 0) {
       const contacts = [];
       try {
@@ -269,13 +275,14 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         }
 
         console.log('📤 [triggerAlert] Appel sendFriendlyAlertSMS avec:', { contacts, userName: state.settings.firstName, limitTimeStr, note: state.currentSession.note, location });
-        await sendFriendlyAlertSMS({
+        const result = await sendFriendlyAlertSMS({
           contacts,
           userName: state.settings.firstName,
           limitTimeStr,
           note: state.currentSession.note,
           location,
         });
+        console.log('✅ [triggerAlert] Résultat sendFriendlyAlertSMS:', result);
       } catch (error) {
         console.error('❌ ERREUR CRITIQUE: Échec de l\'envoi des SMS d\'alerte');
         console.error('📋 Détails de l\'erreur:', error);

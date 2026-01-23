@@ -68,9 +68,9 @@ export default function ActiveSessionScreen() {
         setRemainingTime(
           `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
         );
-        // Envoyer notification 5 minutes avant l'heure limite
+        // Envoyer notification 5 minutes avant l'heure limite (une seule fois)
         const fiveMinBefore = limitTime - (5 * 60 * 1000);
-        if (now >= fiveMinBefore && now < fiveMinBefore + 1000 && !timerNotificationRef.current) {
+        if (now >= fiveMinBefore && !timerNotificationRef.current) {
           timerNotificationRef.current = 'scheduled';
           sendNotification({
             title: '⚠️ Petit check',
@@ -167,6 +167,12 @@ export default function ActiveSessionScreen() {
 
   const handleExtendSession = async () => {
     await addTimeToSession(15);
+    // Afficher un toast de confirmation
+    sendNotification({
+      title: '✅ +15 minutes ajoutées',
+      body: 'Nouvelle heure limite : ' + new Date(currentSession!.deadline + 15 * 60 * 1000).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
+      data: { type: 'extension_confirmed' },
+    });
   };
 
   const handleConfirmCheckIn = async () => {

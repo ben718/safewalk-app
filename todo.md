@@ -1106,4 +1106,27 @@
 ### Phase 5: Validation
 - [x] Tester les performances
 - [x] Vérifier qu'il n'y a pas d'erreurs
-- [ ] Créer checkpoint final
+- [x] Créer checkpoint final
+
+
+## BUGS CRITIQUES À CORRIGER (URGENT)
+
+### Bug #1: Notifications spam
+- [x] Identifier pourquoi les notifications sont envoyées en boucle
+- [x] Ajouter debounce ou limiter la fréquence
+- [x] Tester que les notifications ne sont envoyées qu'une seule fois
+
+### Bug #2: Bouton SOS Urgence ne fonctionne pas
+- [x] Vérifier le hook useSOS
+- [x] Vérifier l'endpoint /api/sos/trigger
+- [x] Tester l'envoi SMS depuis le bouton SOS
+
+### Bug #3: Bouton +15 min ne fonctionne pas
+- [x] Vérifier la fonction handleExtendSession
+- [x] Vérifier que la deadline est bien mise à jour
+- [x] Tester l'extension de session
+
+### Bug #4: SMS non reçus malgré confirmation app
+- [x] Vérifier les logs serveur pour voir si les SMS sont envoyés
+- [x] Vérifier que les credentials Twilio sont corrects
+- [x] Tester l'envoi SMS direct avec Twilio
