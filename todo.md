@@ -1167,3 +1167,21 @@
 - [x] Tester saisie normale : 0612345678 → +33 6 12 34 56 78
 - [x] Tester saisie avec +33 déjà présent
 - [x] Créer checkpoint
+
+
+## FEEDBACK VISUEL VALIDATION NUMÉROS
+
+### Phase 1: Logique de validation temps réel
+- [x] Ajouter état isPhone1Valid dans settings.tsx
+- [x] Ajouter état isPhone2Valid dans settings.tsx
+- [x] Valider en temps réel lors de la saisie
+
+### Phase 2: Icônes de validation
+- [x] Ajouter icône ✓ verte si numéro valide
+- [x] Ajouter icône ✗ rouge si numéro invalide (et non vide)
+- [x] Positionner les icônes à droite du champ
+
+### Phase 3: Tests
+- [x] Tester avec numéro valide → ✓ vert
+- [x] Tester avec numéro invalide → ✗ rouge
+- [x] Créer checkpoint

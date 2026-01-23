@@ -24,11 +24,27 @@ export default function SettingsScreen() {
   const handlePhoneChange = (text: string) => {
     const formatted = formatPhoneInput(text);
     setContactPhone(formatted);
+    
+    // Validation en temps réel
+    const cleaned = cleanPhoneNumber(formatted);
+    if (cleaned.length === 0) {
+      setIsPhone1Valid(null); // Pas d'icône si vide
+    } else {
+      setIsPhone1Valid(validatePhoneNumber(cleaned));
+    }
   };
 
   const handlePhone2Change = (text: string) => {
     const formatted = formatPhoneInput(text);
     setContact2Phone(formatted);
+    
+    // Validation en temps réel
+    const cleaned = cleanPhoneNumber(formatted);
+    if (cleaned.length === 0) {
+      setIsPhone2Valid(null); // Pas d'icône si vide
+    } else {
+      setIsPhone2Valid(validatePhoneNumber(cleaned));
+    }
   };
 
   const [locationEnabled, setLocationEnabled] = useState(settings.locationEnabled);
@@ -36,6 +52,8 @@ export default function SettingsScreen() {
   const [toastMessage, setToastMessage] = useState('');
   const [phoneError, setPhoneError] = useState<string | null>(null);
   const [phone2Error, setPhone2Error] = useState<string | null>(null);
+  const [isPhone1Valid, setIsPhone1Valid] = useState<boolean | null>(null);
+  const [isPhone2Valid, setIsPhone2Valid] = useState<boolean | null>(null);
 
   // Autosave firstName
   useEffect(() => {
@@ -215,9 +233,17 @@ export default function SettingsScreen() {
                       </Text>
                     )}
                   </View>
-                  <Pressable className="p-2">
-                    <MaterialIcons name="phone" size={20} color="#6C63FF" />
-                  </Pressable>
+                  <View className="p-2">
+                    {isPhone1Valid === true && (
+                      <MaterialIcons name="check-circle" size={20} color="#22C55E" />
+                    )}
+                    {isPhone1Valid === false && (
+                      <MaterialIcons name="cancel" size={20} color="#EF4444" />
+                    )}
+                    {isPhone1Valid === null && (
+                      <MaterialIcons name="phone" size={20} color="#9BA1A6" />
+                    )}
+                  </View>
                 </View>
               </GlassCard>
             </View>
@@ -252,9 +278,17 @@ export default function SettingsScreen() {
                       </Text>
                     )}
                   </View>
-                  <Pressable className="p-2">
-                    <MaterialIcons name="phone" size={20} color="#6C63FF" />
-                  </Pressable>
+                  <View className="p-2">
+                    {isPhone2Valid === true && (
+                      <MaterialIcons name="check-circle" size={20} color="#22C55E" />
+                    )}
+                    {isPhone2Valid === false && (
+                      <MaterialIcons name="cancel" size={20} color="#EF4444" />
+                    )}
+                    {isPhone2Valid === null && (
+                      <MaterialIcons name="phone" size={20} color="#9BA1A6" />
+                    )}
+                  </View>
                 </View>
               </GlassCard>
             </View>
