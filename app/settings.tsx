@@ -9,7 +9,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useState, useEffect } from 'react';
 import { ToastPop } from '@/components/ui/toast-pop';
-import { validatePhoneNumber } from '@/lib/utils';
+import { validatePhoneNumber, formatPhoneInput, cleanPhoneNumber } from '@/lib/utils';
 
 export default function SettingsScreen() {
   const insets = useSafeAreaInsets();
@@ -19,6 +19,17 @@ export default function SettingsScreen() {
   const [contactPhone, setContactPhone] = useState(settings.emergencyContactPhone);
   const [contact2Name, setContact2Name] = useState(settings.emergencyContact2Name || '');
   const [contact2Phone, setContact2Phone] = useState(settings.emergencyContact2Phone || '');
+
+  // Handlers pour le masque de saisie
+  const handlePhoneChange = (text: string) => {
+    const formatted = formatPhoneInput(text);
+    setContactPhone(formatted);
+  };
+
+  const handlePhone2Change = (text: string) => {
+    const formatted = formatPhoneInput(text);
+    setContact2Phone(formatted);
+  };
 
   const [locationEnabled, setLocationEnabled] = useState(settings.locationEnabled);
   const [showToast, setShowToast] = useState(false);
@@ -45,15 +56,16 @@ export default function SettingsScreen() {
         contactName !== settings.emergencyContactName ||
         contactPhone !== settings.emergencyContactPhone
       ) {
-        // Valider le numéro si non vide
-        if (contactPhone && !validatePhoneNumber(contactPhone)) {
+        // Nettoyer et valider le numéro si non vide
+        const cleanedPhone = cleanPhoneNumber(contactPhone);
+        if (cleanedPhone && !validatePhoneNumber(cleanedPhone)) {
           setPhoneError('Format invalide. Utilisez +33 suivi de 9 chiffres (ex: +33612345678)');
           return;
         }
         setPhoneError(null);
         updateSettings({
           emergencyContactName: contactName,
-          emergencyContactPhone: contactPhone,
+          emergencyContactPhone: cleanedPhone,
         });
         setToastMessage('Contact 1 sauvegardé');
         setShowToast(true);
@@ -69,15 +81,16 @@ export default function SettingsScreen() {
         contact2Name !== (settings.emergencyContact2Name || '') ||
         contact2Phone !== (settings.emergencyContact2Phone || '')
       ) {
-        // Valider le numéro si non vide
-        if (contact2Phone && !validatePhoneNumber(contact2Phone)) {
+        // Nettoyer et valider le numéro si non vide
+        const cleanedPhone2 = cleanPhoneNumber(contact2Phone);
+        if (cleanedPhone2 && !validatePhoneNumber(cleanedPhone2)) {
           setPhone2Error('Format invalide. Utilisez +33 suivi de 9 chiffres (ex: +33612345678)');
           return;
         }
         setPhone2Error(null);
         updateSettings({
           emergencyContact2Name: contact2Name,
-          emergencyContact2Phone: contact2Phone,
+          emergencyContact2Phone: cleanedPhone2,
         });
         setToastMessage('Contact 2 sauvegardé');
         setShowToast(true);
@@ -193,7 +206,8 @@ export default function SettingsScreen() {
                     <PopTextField
                       placeholder="+33 6 12 34 56 78"
                       value={contactPhone}
-                      onChangeText={setContactPhone}
+                      onChangeText={handlePhoneChange}
+                      keyboardType="phone-pad"
                     />
                     {phoneError && (
                       <Text className="text-xs text-error mt-1">
@@ -229,7 +243,8 @@ export default function SettingsScreen() {
                     <PopTextField
                       placeholder="+33 6 12 34 56 78"
                       value={contact2Phone}
-                      onChangeText={setContact2Phone}
+                      onChangeText={handlePhone2Change}
+                      keyboardType="phone-pad"
                     />
                     {phone2Error && (
                       <Text className="text-xs text-error mt-1">

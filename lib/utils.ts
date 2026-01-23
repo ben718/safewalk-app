@@ -50,3 +50,77 @@ export function formatPhoneNumber(phone: string): string {
   const cleaned = phone.trim();
   return `${cleaned.slice(0, 3)} ${cleaned.slice(3, 4)} ${cleaned.slice(4, 6)} ${cleaned.slice(6, 8)} ${cleaned.slice(8, 10)} ${cleaned.slice(10, 12)}`;
 }
+
+/**
+ * Formate l'entrée utilisateur pour un numéro de téléphone français
+ * - Auto-préfixe +33 si l'utilisateur tape 0 ou commence par un chiffre
+ * - Formate avec des espaces : +33 6 12 34 56 78
+ * - Limite à 17 caractères (avec espaces)
+ * 
+ * @param input - La saisie brute de l'utilisateur
+ * @returns Le numéro formaté avec espaces
+ * 
+ * Usage:
+ * ```tsx
+ * <TextInput
+ *   value={phone}
+ *   onChangeText={(text) => setPhone(formatPhoneInput(text))}
+ * />
+ * ```
+ */
+export function formatPhoneInput(input: string): string {
+  // Supprimer tous les caractères non numériques sauf le +
+  let cleaned = input.replace(/[^\d+]/g, '');
+  
+  // Si l'utilisateur tape 0 au début, remplacer par +33
+  if (cleaned.startsWith('0')) {
+    cleaned = '+33' + cleaned.slice(1);
+  }
+  
+  // Si l'utilisateur tape un chiffre sans +, ajouter +33
+  if (cleaned.length > 0 && !cleaned.startsWith('+')) {
+    cleaned = '+33' + cleaned;
+  }
+  
+  // Limiter à +33 + 9 chiffres
+  if (cleaned.startsWith('+33')) {
+    cleaned = '+33' + cleaned.slice(3).replace(/\D/g, '').slice(0, 9);
+  }
+  
+  // Formater avec des espaces : +33 6 12 34 56 78
+  if (cleaned.length >= 3) {
+    let formatted = cleaned.slice(0, 3); // +33
+    const digits = cleaned.slice(3);
+    
+    if (digits.length > 0) {
+      formatted += ' ' + digits.slice(0, 1); // premier chiffre
+    }
+    if (digits.length > 1) {
+      formatted += ' ' + digits.slice(1, 3); // 2 chiffres
+    }
+    if (digits.length > 3) {
+      formatted += ' ' + digits.slice(3, 5); // 2 chiffres
+    }
+    if (digits.length > 5) {
+      formatted += ' ' + digits.slice(5, 7); // 2 chiffres
+    }
+    if (digits.length > 7) {
+      formatted += ' ' + digits.slice(7, 9); // 2 derniers chiffres
+    }
+    
+    return formatted;
+  }
+  
+  return cleaned;
+}
+
+/**
+ * Nettoie un numéro formaté pour le stockage
+ * Transforme "+33 6 12 34 56 78" en "+33612345678"
+ * 
+ * @param formatted - Le numéro formaté avec espaces
+ * @returns Le numéro sans espaces
+ */
+export function cleanPhoneNumber(formatted: string): string {
+  return formatted.replace(/\s/g, '');
+}

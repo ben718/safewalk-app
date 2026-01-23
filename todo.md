@@ -1148,3 +1148,22 @@
 - [x] Tester avec numéros valides
 - [x] Tester avec numéros invalides
 - [x] Créer checkpoint
+
+
+## MASQUE DE SAISIE NUMÉROS
+
+### Phase 1: Fonction de masque
+- [x] Créer fonction formatPhoneInput dans lib/utils.ts
+- [x] Auto-préfixe +33 si l'utilisateur tape 0 ou 6
+- [x] Formatage automatique avec espaces : +33 6 12 34 56 78
+- [x] Limite à 12 caractères (+33 + 9 chiffres)
+
+### Phase 2: Intégration
+- [x] Modifier PopTextField pour accepter le masque
+- [x] Appliquer le masque aux champs téléphone dans settings.tsx
+- [x] Tester la saisie avec différents cas
+
+### Phase 3: Tests
+- [x] Tester saisie normale : 0612345678 → +33 6 12 34 56 78
+- [x] Tester saisie avec +33 déjà présent
+- [x] Créer checkpoint
