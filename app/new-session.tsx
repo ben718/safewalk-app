@@ -8,6 +8,7 @@ import { ScreenTransition } from '@/components/ui/screen-transition';
 import { useApp } from '@/lib/context/app-context';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
+import { ToastPop } from '@/components/ui/toast-pop';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function NewSessionScreen() {
@@ -16,11 +17,15 @@ export default function NewSessionScreen() {
   const insets = useSafeAreaInsets();
   const [limitTime, setLimitTime] = useState(Date.now() + 2.5 * 60 * 60 * 1000);
   const [note, setNote] = useState('');
+  const [toastMessage, setToastMessage] = useState('');
 
   const handleStartSession = () => {
     if (!settings.emergencyContactName || !settings.emergencyContactPhone) {
-      alert('Veuillez configurer un contact d\'urgence dans les paramètres.');
-      router.push('/settings');
+      setToastMessage('Configure un contact d\'urgence d\'abord');
+      setTimeout(() => {
+        setToastMessage('');
+        router.push('/settings');
+      }, 2000);
       return;
     }
     startSession(limitTime, note);
@@ -127,6 +132,15 @@ export default function NewSessionScreen() {
           size="lg"
         />
       </View>
+
+      {/* Toast */}
+      {toastMessage && (
+        <ToastPop
+          message={toastMessage}
+          type="error"
+          onDismiss={() => setToastMessage('')}
+        />
+      )}
     </View>
   );
 }

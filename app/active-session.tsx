@@ -315,7 +315,7 @@ export default function ActiveSessionScreen() {
                 </Text>
               </View>
               <View className="flex-row justify-between">
-                <Text className="text-sm text-muted">Heure d'alerte (+ tolérance) :</Text>
+                <Text className="text-sm text-muted">Heure d'alerte :</Text>
                 <Text className="text-sm font-semibold text-foreground">
                   {deadlineStr}
                 </Text>

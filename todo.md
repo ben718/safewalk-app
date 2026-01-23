@@ -1241,3 +1241,45 @@
 - [x] 8) Debug automatique avec messages d'erreur clairs
 - [ ] 9) Tester end-to-end depuis Expo Go
 - [x] 10) Documenter la procédure de test (PROCEDURE_TEST_SMS_EXPO.md)
+
+
+## BUG CRITIQUE : APP BLOQUÉE SUR "OPENING PROJECT..." (SAFARI MOBILE)
+
+### Problème
+- [x] L'app reste bloquée sur "Opening project..." dans Expo Go (pas Safari)
+- [x] Message: "This is taking much longer than it should. You might want to check your internet connectivity."
+- [x] Le bundle Expo ne se charge pas - problème de connexion au serveur Metro
+
+### Diagnostic à faire
+- [ ] Vérifier que le serveur Metro est en cours d'exécution
+- [ ] Vérifier les logs du serveur pour voir les erreurs
+- [ ] Tester l'URL Metro depuis le navigateur
+- [ ] Vérifier la configuration Expo (app.config.ts)
+- [ ] Vérifier que le port 8081 est bien exposé
+
+### Corrections à appliquer
+- [ ] Redémarrer le serveur Metro si nécessaire
+- [ ] Corriger la configuration si problème détecté
+- [ ] Vérifier que l'URL publique est accessible
+- [ ] Tester le chargement depuis Expo Go (pas Safari)
+
+
+## AMÉLIORATION DESIGN : COHÉRENCE FRONT-END
+
+### Problèmes identifiés
+- [x] "Tolérance" encore visible quelque part (doit être supprimé)
+- [x] Incohérences dans les textes entre les pages
+- [x] Couleurs des boutons pas uniformes
+- [x] Messages d'erreur pas cohérents
+- [x] Design pas clean sur toutes les pages
+
+### Corrections appliquées
+- [x] Analyser toutes les pages (index, active-session, settings, history, alert-sent, new-session)
+- [x] Supprimer toute référence à "tolérance" (active-session.tsx ligne 318)
+- [x] Créer DESIGN_SYSTEM.md avec règles de cohérence
+- [x] Uniformiser les couleurs des boutons (primaire, secondaire, danger)
+- [x] Uniformiser les textes (taille, poids, couleur)
+- [x] Remplacer alert() par ToastPop dans new-session.tsx
+- [x] Améliorer les messages d'erreur (plus clairs, plus cohérents)
+- [x] Vérifier que tous les boutons ont le même style
+- [x] S'assurer que le design est cohérent sur toutes les pages
