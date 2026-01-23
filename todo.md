@@ -1000,3 +1000,31 @@
 - [x] Mettre à jour les dépendances du useCallback
 - [x] Tests : 78/78 PASS
 - [x] Bouton SOS maintenant fonctionne correctement
+
+
+## BUGS SMS À CORRIGER (PRIORITÉ CRITIQUE)
+
+### Bug #1: EXPO_PUBLIC_API_URL non accessible depuis Expo Go
+- [x] Vérifier que EXPO_PUBLIC_API_URL est correctement injectée dans l'app
+- [x] Ajouter fallback si EXPO_PUBLIC_API_URL est undefined
+- [x] Tester la connexion API depuis Expo Go
+
+### Bug #2: Gestion d'erreurs SMS silencieuse
+- [x] Ajouter logs détaillés dans friendly-sms-client.ts
+- [x] Afficher toast d'erreur si SMS échoue
+- [x] Ajouter retry automatique (3 tentatives)
+
+### Bug #3: SMS ne sont pas envoyés quand deadline expire
+- [x] Vérifier que triggerAlert() est appelé correctement
+- [x] Ajouter logs dans active-session.tsx pour tracer l'envoi
+- [x] Tester le flux complet: timer → deadline → SMS envoyé
+
+### Bug #4: Configuration serveur pour production
+- [x] Vérifier que le serveur Express écoute sur 0.0.0.0
+- [x] Vérifier que le port 3000 est exposé publiquement
+- [x] Tester l'accès depuis un appareil externe
+
+### Bug #5: Tests SMS skippés
+- [x] Réactiver les tests SMS après correction
+- [x] Valider que tous les tests passent
+- [x] Ajouter tests end-to-end pour le flux complet

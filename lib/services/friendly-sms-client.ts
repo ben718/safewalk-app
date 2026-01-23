@@ -1,6 +1,4 @@
-// En développement: localhost:3000
-// En production: URL du serveur déployé
-const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3000';
+import { API_BASE_URL } from '../config/api';
 
 export interface FriendlyAlertParams {
   contacts: Array<{ name: string; phone: string }>;
@@ -11,29 +9,46 @@ export interface FriendlyAlertParams {
 }
 
 export async function sendFriendlyAlertSMS(params: FriendlyAlertParams): Promise<void> {
-  try {
-    console.log('📤 Appel API SMS friendly avec:', params);
-    const url = `${API_BASE_URL}/api/friendly-sms/alert`;
-    console.log('🔗 URL:', url);
+  const maxRetries = 3;
+  let lastError: Error | null = null;
 
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(params),
-    });
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      console.log(`📤 [Tentative ${attempt}/${maxRetries}] Appel API SMS friendly`);
+      console.log('📋 Params:', JSON.stringify(params, null, 2));
+      
+      const url = `${API_BASE_URL}/api/friendly-sms/alert`;
+      console.log('🔗 URL:', url);
 
-    console.log('📊 Réponse API:', response.status, response.statusText);
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(params),
+      });
 
-    if (!response.ok) {
-      const errorBody = await response.text();
-      console.error('❌ Réponse API:', errorBody);
-      throw new Error(`SMS API error: ${response.status} ${response.statusText}`);
+      console.log('📊 Réponse API:', response.status, response.statusText);
+
+      if (!response.ok) {
+        const errorBody = await response.text();
+        console.error('❌ Réponse API:', errorBody);
+        throw new Error(`SMS API error: ${response.status} ${response.statusText} - ${errorBody}`);
+      }
+
+      const data = await response.json();
+      console.log('✅ SMS friendly envoyés avec succès:', data);
+      return; // Succès, sortir de la boucle
+    } catch (error) {
+      lastError = error as Error;
+      console.error(`❌ [Tentative ${attempt}/${maxRetries}] Erreur SMS friendly:`, error);
+      
+      if (attempt < maxRetries) {
+        // Attendre 2 secondes avant de réessayer
+        console.log(`⏳ Nouvelle tentative dans 2 secondes...`);
+        await new Promise(resolve => setTimeout(resolve, 2000));
+      }
     }
-
-    const data = await response.json();
-    console.log('✅ SMS friendly envoyés avec succès:', data);
-  } catch (error) {
-    console.error('❌ Erreur SMS friendly:', error);
-    throw error;
   }
+
+  // Si toutes les tentatives ont échoué, lancer l'erreur
+  throw new Error(`Échec de l'envoi SMS après ${maxRetries} tentatives: ${lastError?.message}`);
 }

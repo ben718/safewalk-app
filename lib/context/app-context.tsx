@@ -249,8 +249,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     }
 
     if (phoneNumbers.length > 0) {
+      const contacts = [];
       try {
-        const contacts = [];
         if (state.settings.emergencyContactPhone) {
           contacts.push({
             name: state.settings.emergencyContactName || 'Contact 1',
@@ -272,7 +272,13 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
           location,
         });
       } catch (error) {
-        console.error('Erreur lors de l\'envoi des SMS:', error);
+        console.error('❌ ERREUR CRITIQUE: Échec de l\'envoi des SMS d\'alerte');
+        console.error('📋 Détails de l\'erreur:', error);
+        console.error('📋 Contacts:', contacts);
+        console.error('📋 Localisation:', location);
+        
+        // TODO: Afficher un toast d'erreur à l'utilisateur
+        // Alert.alert('Erreur SMS', 'Impossible d\'envoyer les SMS. Veuillez contacter vos proches manuellement.');
       }
     }
   };
