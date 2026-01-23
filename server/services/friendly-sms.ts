@@ -7,12 +7,24 @@ const twilioPhoneNumber = process.env.TWILIO_PHONE_NUMBER;
 
 const client = accountSid && authToken ? twilio(accountSid, authToken) : null;
 
+// Types séparés pour chaque type de SMS (cohérence backend/frontend)
 export interface AlertSMSParams {
   phoneNumber: string;
-  userName: string; // Prénom de l'utilisateur (ex: "Ben")
-  limitTimeStr: string; // Heure limite (ex: "02:30")
-  note?: string; // Note optionnelle (ex: "Soirée chez Karim")
+  userName: string;
+  limitTimeStr: string;
+  note?: string;
   location?: { latitude: number; longitude: number };
+}
+
+export interface FollowUpSMSParams {
+  phoneNumber: string;
+  userName: string;
+  location?: { latitude: number; longitude: number };
+}
+
+export interface ConfirmationSMSParams {
+  phoneNumber: string;
+  userName: string;
 }
 
 /**
@@ -106,7 +118,7 @@ export async function sendFriendlyAlertSMSToMultiple(
  * Envoyer un SMS de relance friendly
  * Format: SafeWalk 🫶\nToujours pas de confirmation de {userName}.\nSi tu peux, réessaye de l'appeler 🙏\n📍 {location}
  */
-export async function sendFollowUpAlertSMS(params: AlertSMSParams): Promise<string> {
+export async function sendFollowUpAlertSMS(params: FollowUpSMSParams): Promise<string> {
   if (!client || !twilioPhoneNumber) {
     console.log('📱 [MOCK SMS] Relance SMS non envoyée (Twilio non configuré)');
     console.log(`   À: ${params.phoneNumber}`);
@@ -146,7 +158,7 @@ export async function sendFollowUpAlertSMS(params: AlertSMSParams): Promise<stri
  * Envoyer un SMS de confirmation friendly
  * Format: SafeWalk ✅\n{userName} vient de confirmer que tout va bien 🙂\nDésolé pour l'inquiétude !
  */
-export async function sendConfirmationSMS(params: AlertSMSParams): Promise<string> {
+export async function sendConfirmationSMS(params: ConfirmationSMSParams): Promise<string> {
   if (!client || !twilioPhoneNumber) {
     console.log('📱 [MOCK SMS] SMS de confirmation non envoyé (Twilio non configuré)');
     console.log(`   À: ${params.phoneNumber}`);
@@ -189,7 +201,6 @@ export async function sendFollowUpAlertSMSToMultiple(
       const messageSid = await sendFollowUpAlertSMS({
         phoneNumber: contact.phone,
         userName,
-        limitTimeStr: '', // Non utilisé pour la relance
         location,
       });
 
@@ -225,7 +236,6 @@ export async function sendConfirmationSMSToMultiple(
       const messageSid = await sendConfirmationSMS({
         phoneNumber: contact.phone,
         userName,
-        limitTimeStr: '', // Non utilisé pour la confirmation
       });
 
       results.push({

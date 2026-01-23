@@ -1,5 +1,5 @@
 import { Router, Request, Response } from "express";
-import { sendAlertSMS } from "../services/twilio";
+import { sendFriendlyAlertSMSToMultiple } from "../services/friendly-sms";
 import * as db from "../db";
 import crypto from "crypto";
 
@@ -8,7 +8,7 @@ const router = Router();
 /**
  * POST /api/sos/trigger
  * Déclenche une alerte SOS immédiate
- * Envoie SMS à tous les contacts d'urgence avec position GPS
+ * Envoie SMS friendly à tous les contacts d'urgence avec position GPS
  */
 router.post("/trigger", async (req: Request, res: Response) => {
   try {
@@ -71,7 +71,7 @@ router.post("/trigger", async (req: Request, res: Response) => {
       }
     }
 
-    const emergencyContacts = [];
+    const emergencyContacts: Array<{ name: string; phone: string }> = [];
     if (preferences.emergencyContact1Phone) {
       emergencyContacts.push({
         name: preferences.emergencyContact1Name || "Contact 1",
@@ -92,60 +92,34 @@ router.post("/trigger", async (req: Request, res: Response) => {
       });
     }
 
-    // Construire le message SOS
-    let sosMessage = `🚨 ALERTE SOS 🚨\n\n`;
-    sosMessage += `${preferences.firstName || "Quelqu'un"} a déclenché une alerte d'urgence.\n\n`;
+    // Utiliser le système SMS friendly pour SOS
+    const location = latitude && longitude ? { latitude, longitude } : undefined;
+    const limitTimeStr = session.limitTime.toLocaleTimeString('fr-FR', {
+      hour: '2-digit',
+      minute: '2-digit',
+    });
 
-    if (latitude && longitude) {
-      sosMessage += `📍 Position: ${latitude}, ${longitude}\n`;
-      sosMessage += `🗺️ Google Maps: https://maps.google.com/?q=${latitude},${longitude}\n\n`;
-    }
+    console.log(`[SOS] Envoi SMS friendly à ${emergencyContacts.length} contact(s)...`);
 
-    sosMessage += `⏰ Heure: ${new Date().toLocaleString("fr-FR")}\n`;
-    sosMessage += `📱 Réponds ou appelle immédiatement.`;
+    const smsResults = await sendFriendlyAlertSMSToMultiple(
+      emergencyContacts,
+      preferences.firstName || 'Utilisateur',
+      limitTimeStr,
+      '🚨 ALERTE SOS IMMÉDIATE',
+      location
+    );
 
-    // Envoyer SMS à tous les contacts d'urgence
-    const smsResults = [];
-    for (const contact of emergencyContacts) {
-      try {
-        // Envoyer le SMS SOS
-        let messageSid = "";
-        try {
-          await sendAlertSMS(contact.phone, "immédiatement", 0);
-          messageSid = crypto.randomUUID();
-        } catch (err) {
-          console.error(`Erreur lors de l'envoi SOS à ${contact.phone}:`, err);
-          throw err;
-        }
-
-        // Enregistrer le log SMS en base de données
-        const smsLogId = crypto.randomUUID();
-        await db.saveSmsLog({
-          id: smsLogId,
-          sessionId,
-          phoneNumber: contact.phone,
-          message: sosMessage,
-          status: "sent",
-          messageSid,
-        });
-
-        smsResults.push({
-          contact: contact.name,
-          phone: contact.phone,
-          messageSid,
-          status: "sent",
-        });
-
-        console.log(`[SOS] SMS envoyé à ${contact.name} (${contact.phone}): ${messageSid}`);
-      } catch (error) {
-        console.error(`[SOS] Erreur lors de l'envoi à ${contact.name}:`, error);
-        smsResults.push({
-          contact: contact.name,
-          phone: contact.phone,
-          status: "failed",
-          error: String(error),
-        });
-      }
+    // Enregistrer les logs SMS en base de données
+    for (const result of smsResults) {
+      const smsLogId = crypto.randomUUID();
+      await db.saveSmsLog({
+        id: smsLogId,
+        sessionId,
+        phoneNumber: result.phone,
+        message: `SOS Alert to ${result.phone}`,
+        status: result.status as 'sent' | 'failed',
+        messageSid: result.messageSid,
+      });
     }
 
     // Sauvegarder la position GPS si fournie
@@ -171,7 +145,12 @@ router.post("/trigger", async (req: Request, res: Response) => {
     res.json({
       success: true,
       message: "Alerte SOS déclenchée",
-      smsResults,
+      smsResults: smsResults.map(r => ({
+        contact: emergencyContacts.find(c => c.phone === r.phone)?.name || 'Unknown',
+        phone: r.phone,
+        messageSid: r.messageSid,
+        status: r.status,
+      })),
       timestamp: Date.now(),
     });
   } catch (error) {

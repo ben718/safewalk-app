@@ -1028,3 +1028,26 @@
 - [x] Réactiver les tests SMS après correction
 - [x] Valider que tous les tests passent
 - [x] Ajouter tests end-to-end pour le flux complet
+
+
+## AUDIT & OPTIMISATION (COHÉRENCE BACKEND/FRONTEND)
+
+### Phase 1: Audit des types et interfaces
+- [x] Vérifier cohérence des types entre server/routes et lib/services
+- [x] Vérifier que les params API correspondent aux interfaces frontend
+- [x] Éliminer les types dupliqués ou incohérents
+
+### Phase 2: Logique métier
+- [x] Vérifier que les états de session sont cohérents (active, grace, overdue, etc.)
+- [x] Vérifier que les calculs de temps (deadline, limitTime) sont corrects
+- [x] Éliminer les comportements illogiques (ex: SMS envoyés sans contacts)
+
+### Phase 3: Optimisation
+- [x] Supprimer les appels API redondants
+- [x] Supprimer le code mort (fonctions non utilisées)
+- [x] Optimiser les imports et dépendances
+
+### Phase 4: Validation
+- [x] Exécuter tous les tests
+- [x] Vérifier qu'il n'y a pas d'erreurs TypeScript
+- [ ] Créer checkpoint final
