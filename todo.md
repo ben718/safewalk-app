@@ -1130,3 +1130,21 @@
 - [x] Vérifier les logs serveur pour voir si les SMS sont envoyés
 - [x] Vérifier que les credentials Twilio sont corrects
 - [x] Tester l'envoi SMS direct avec Twilio
+
+
+## VALIDATION NUMÉROS DE TÉLÉPHONE
+
+### Phase 1: Fonction de validation
+- [x] Créer fonction validatePhoneNumber dans lib/utils.ts
+- [x] Regex: ^\+33[0-9]{9}$ (format français)
+- [x] Tester la fonction avec différents formats
+
+### Phase 2: Intégration dans Paramètres
+- [x] Ajouter validation dans app/settings.tsx
+- [x] Afficher message d'erreur si format invalide
+- [x] Bloquer la sauvegarde si numéro invalide
+
+### Phase 3: Tests
+- [x] Tester avec numéros valides
+- [x] Tester avec numéros invalides
+- [x] Créer checkpoint

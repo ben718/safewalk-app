@@ -9,6 +9,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useState, useEffect } from 'react';
 import { ToastPop } from '@/components/ui/toast-pop';
+import { validatePhoneNumber } from '@/lib/utils';
 
 export default function SettingsScreen() {
   const insets = useSafeAreaInsets();
@@ -22,6 +23,8 @@ export default function SettingsScreen() {
   const [locationEnabled, setLocationEnabled] = useState(settings.locationEnabled);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
+  const [phoneError, setPhoneError] = useState<string | null>(null);
+  const [phone2Error, setPhone2Error] = useState<string | null>(null);
 
   // Autosave firstName
   useEffect(() => {
@@ -35,13 +38,19 @@ export default function SettingsScreen() {
     return () => clearTimeout(timer);
   }, [firstName]);
 
-  // Autosave contact 1
+  // Autosave contact 1 avec validation
   useEffect(() => {
     const timer = setTimeout(() => {
       if (
         contactName !== settings.emergencyContactName ||
         contactPhone !== settings.emergencyContactPhone
       ) {
+        // Valider le numéro si non vide
+        if (contactPhone && !validatePhoneNumber(contactPhone)) {
+          setPhoneError('Format invalide. Utilisez +33 suivi de 9 chiffres (ex: +33612345678)');
+          return;
+        }
+        setPhoneError(null);
         updateSettings({
           emergencyContactName: contactName,
           emergencyContactPhone: contactPhone,
@@ -53,13 +62,19 @@ export default function SettingsScreen() {
     return () => clearTimeout(timer);
   }, [contactName, contactPhone]);
 
-  // Autosave contact 2
+  // Autosave contact 2 avec validation
   useEffect(() => {
     const timer = setTimeout(() => {
       if (
         contact2Name !== (settings.emergencyContact2Name || '') ||
         contact2Phone !== (settings.emergencyContact2Phone || '')
       ) {
+        // Valider le numéro si non vide
+        if (contact2Phone && !validatePhoneNumber(contact2Phone)) {
+          setPhone2Error('Format invalide. Utilisez +33 suivi de 9 chiffres (ex: +33612345678)');
+          return;
+        }
+        setPhone2Error(null);
         updateSettings({
           emergencyContact2Name: contact2Name,
           emergencyContact2Phone: contact2Phone,
@@ -180,6 +195,11 @@ export default function SettingsScreen() {
                       value={contactPhone}
                       onChangeText={setContactPhone}
                     />
+                    {phoneError && (
+                      <Text className="text-xs text-error mt-1">
+                        {phoneError}
+                      </Text>
+                    )}
                   </View>
                   <Pressable className="p-2">
                     <MaterialIcons name="phone" size={20} color="#6C63FF" />
@@ -211,6 +231,11 @@ export default function SettingsScreen() {
                       value={contact2Phone}
                       onChangeText={setContact2Phone}
                     />
+                    {phone2Error && (
+                      <Text className="text-xs text-error mt-1">
+                        {phone2Error}
+                      </Text>
+                    )}
                   </View>
                   <Pressable className="p-2">
                     <MaterialIcons name="phone" size={20} color="#6C63FF" />
