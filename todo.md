@@ -1460,3 +1460,20 @@
 - [x] Enlever l'émoji 📍 de l'indicateur GPS (garder uniquement cercle vert/rouge)
 - [x] Corriger le bouton "Je suis rentré" transparent (rendre visible avec backgroundColor en style)
 - [x] Déboguer le bouton SOS qui n'envoie pas de SMS (ajout logs + Alert en cas d'erreur)
+
+
+## PROBLÈME CRITIQUE : ENVOI SMS NE FONCTIONNE PAS
+
+- [x] Analyser pourquoi les SMS ne sont pas envoyés depuis l'application
+- [x] Vérifier la configuration Twilio (credentials, numéros) - OK
+- [x] Vérifier le service SMS côté client (sms-service.ts) - OK
+- [x] Vérifier les routes backend (/api/sms/send) - OK
+- [x] Tester l'API backend directement avec curl - OK (SMS envoyé avec succès)
+- [x] Analyser les logs backend pour identifier les erreurs
+- [x] Corriger le problème identifié
+  - Cause: URL API obsolète dans EXPO_PUBLIC_API_URL
+  - Ancienne URL: https://3000-i8rqllu1a9mlzen76xc6u-b9cd8fd2.us2.manus.computer
+  - Nouvelle URL: https://3000-irwl1yzlwbswmhi7zu2m2-c84b8aca.us1.manus.computer
+  - Solution: Mise à jour de la variable d'environnement
+  - Tests: 3/3 passés (URL valide, health OK, SMS envoyé)
+- [ ] Tester Test SMS, Alerte et SOS depuis Expo Go
