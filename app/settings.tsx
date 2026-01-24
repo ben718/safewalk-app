@@ -1,4 +1,5 @@
 import { View, Text, Pressable, Switch, Alert, ScrollView, ActivityIndicator } from 'react-native';
+import { router } from 'expo-router';
 import { BubbleBackground } from '@/components/ui/bubble-background';
 import { GlassCard } from '@/components/ui/glass-card';
 import { PopTextField } from '@/components/ui/pop-text-field';
@@ -410,8 +411,23 @@ export default function SettingsScreen() {
           </View>
         </ScreenTransition>
 
-        {/* Bouton "Test SMS" */}
+        {/* Bouton "À propos" */}
         <ScreenTransition delay={250} duration={350}>
+          <Pressable 
+            onPress={() => router.push('/about')}
+            className="mb-4"
+          >
+            <GlassCard className="flex-row items-center justify-center gap-2 py-4">
+              <MaterialIcons name="info" size={20} color="#0a7ea4" />
+              <Text className="text-base font-semibold text-foreground">
+                À propos
+              </Text>
+            </GlassCard>
+          </Pressable>
+        </ScreenTransition>
+
+        {/* Bouton "Test SMS" */}
+        <ScreenTransition delay={300} duration={350}>
           <Pressable 
             onPress={handleTestSms}
             disabled={isSendingTestSms || !contactPhone}
@@ -431,7 +447,7 @@ export default function SettingsScreen() {
         </ScreenTransition>
 
         {/* Bouton "Supprimer mes données" */}
-        <ScreenTransition delay={300} duration={350}>
+        <ScreenTransition delay={350} duration={350}>
           <Pressable onPress={handleDeleteData}>
             <Text className="text-center text-base font-bold text-error">
               Supprimer mes données

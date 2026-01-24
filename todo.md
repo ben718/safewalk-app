@@ -1510,3 +1510,15 @@
 ### Synchronisation
 - [x] Redémarrer le serveur pour appliquer les changements
 - [ ] Vérifier que l'app se charge correctement sur Expo Go
+
+
+## ÉCRAN "À PROPOS" (requis par stores)
+
+- [x] Créer les Conditions d'Utilisation (TERMS_OF_SERVICE.md)
+- [x] Créer l'écran À propos (app/about.tsx)
+- [x] Ajouter le lien dans les Paramètres (bouton avec icône info)
+- [x] Afficher la version de l'app (depuis Constants.expoConfig.version)
+- [x] Lien vers Privacy Policy (https://safewalk.app/privacy)
+- [x] Lien vers Terms of Service (https://safewalk.app/terms)
+- [x] Informations de support/contact (support@safewalk.app, safewalk.app)
+- [ ] Tester sur Expo Go
