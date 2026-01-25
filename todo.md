@@ -1597,3 +1597,16 @@
   - Les SMS ne sont envoyés qu'aux numéros vérifiés en mode Trial
 - [x] Corriger le problème identifié - Utilisateur a vérifié son numéro
 - [x] Tester sur Expo Go avec vrai numéro - Tout est bon
+
+
+## BUG : TypeError dans scheduleNotification
+
+- [x] Analyser l'erreur "The 'trigger' object you provided is invalid"
+  - Cause: trigger manquait le champ 'type'
+  - Format incorrect: { date: Date } ou { seconds: number }
+  - Format requis: { type: 'date', date: Date } ou { type: 'timeInterval', seconds: number, repeats: boolean }
+- [x] Corriger le format du trigger dans use-notifications.ts ligne 121-123
+  - Ajouté type: 'date' pour Date
+  - Ajouté type: 'timeInterval' + repeats: false pour number
+- [x] Le trigger doit contenir 'type' ou 'channelId' - Corrigé
+- [ ] Tester la notification "5 min avant" sur Expo Go

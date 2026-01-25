@@ -119,8 +119,8 @@ export function useNotifications() {
   ): Promise<string | null> => {
     try {
       const trigger = triggerDate instanceof Date 
-        ? { date: triggerDate } 
-        : { seconds: triggerDate };
+        ? { type: 'date' as const, date: triggerDate } 
+        : { type: 'timeInterval' as const, seconds: triggerDate, repeats: false };
 
       const notificationId = await Notifications.scheduleNotificationAsync({
         content: {
