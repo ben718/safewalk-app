@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useCallback } from 'react';
 import * as Notifications from 'expo-notifications';
 import * as Haptics from 'expo-haptics';
 import { Platform } from 'react-native';
@@ -79,7 +79,7 @@ export function useNotifications() {
   /**
    * Envoyer une notification locale immédiate
    */
-  const sendNotification = async (options: NotificationOptions): Promise<string | null> => {
+  const sendNotification = useCallback(async (options: NotificationOptions): Promise<string | null> => {
     try {
       const notificationId = await Notifications.scheduleNotificationAsync({
         content: {
@@ -108,16 +108,20 @@ export function useNotifications() {
       console.error('Erreur lors de l\'envoi de la notification:', error);
       return null;
     }
-  };
+  }, []);
 
   /**
    * Programmer une notification pour plus tard
    */
-  const scheduleNotification = async (
+  const scheduleNotification = useCallback(async (
     options: NotificationOptions,
-    delaySeconds: number
+    triggerDate: Date | number
   ): Promise<string | null> => {
     try {
+      const trigger = triggerDate instanceof Date 
+        ? { date: triggerDate } 
+        : { seconds: triggerDate };
+
       const notificationId = await Notifications.scheduleNotificationAsync({
         content: {
           title: options.title,
@@ -126,42 +130,43 @@ export function useNotifications() {
           sound: 'default',
           badge: 1,
         },
-        trigger: {
-          seconds: delaySeconds,
-        } as any,
+        trigger: trigger as any,
       });
 
-      console.log(`📅 Notification programmée dans ${delaySeconds}s:`, options.title);
+      const delayInfo = triggerDate instanceof Date 
+        ? `à ${triggerDate.toLocaleTimeString()}`
+        : `dans ${triggerDate}s`;
+      console.log(`📅 Notification programmée ${delayInfo}:`, options.title);
       return notificationId;
     } catch (error) {
       console.error('Erreur lors de la programmation de la notification:', error);
       return null;
     }
-  };
+  }, []);
 
   /**
    * Annuler une notification programmée
    */
-  const cancelNotification = async (notificationId: string): Promise<void> => {
+  const cancelNotification = useCallback(async (notificationId: string): Promise<void> => {
     try {
       await Notifications.cancelScheduledNotificationAsync(notificationId);
       console.log('❌ Notification annulée:', notificationId);
     } catch (error) {
       console.error('Erreur lors de l\'annulation de la notification:', error);
     }
-  };
+  }, []);
 
   /**
    * Annuler toutes les notifications programmées
    */
-  const cancelAllNotifications = async (): Promise<void> => {
+  const cancelAllNotifications = useCallback(async (): Promise<void> => {
     try {
       await Notifications.cancelAllScheduledNotificationsAsync();
       console.log('❌ Toutes les notifications annulées');
     } catch (error) {
       console.error('Erreur lors de l\'annulation des notifications:', error);
     }
-  };
+  }, []);
 
   /**
    * Envoyer une notification d'alerte timer expiré

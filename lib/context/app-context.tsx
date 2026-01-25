@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useReducer, useEffect } from 'react';
+import React, { createContext, useContext, useReducer, useEffect, useCallback } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { sendFriendlyAlertSMS } from '../services/friendly-sms-client';
 import { sendFollowUpAlertSMS, sendConfirmationSMS } from '../services/follow-up-sms-client';
@@ -225,7 +225,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     await AsyncStorage.setItem('safewalk_history', JSON.stringify(newHistory));
   };
 
-  const triggerAlert = async (location?: { latitude: number; longitude: number }) => {
+  const triggerAlert = useCallback(async (location?: { latitude: number; longitude: number }) => {
     console.log('🚨 [triggerAlert] Début de triggerAlert');
     console.log('📋 [triggerAlert] Settings:', state.settings);
     console.log('📋 [triggerAlert] Session:', state.currentSession);
@@ -298,9 +298,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         }
       }
     } catch (error) {
-      console.error('❌ [triggerAlert] ERREUR CRITIQUE:', error);
+      console.error('❌ [triggerAlert] Exception lors de l\'envoi des SMS:', error);
     }
-  };
+  }, [state.currentSession, state.settings, sendNotification]);
 
   const checkAndTriggerAlert = async () => {
     if (!state.currentSession) return;

@@ -1564,3 +1564,19 @@
 - [x] Notification "5 min avant" avec scheduleNotification
 - [x] Dossier dev/ supprimé (theme-lab.tsx)
 - [x] CODE_ANALYSIS.md mis à jour
+
+
+## OPTIMISATION PERFORMANCE : useCallback
+
+- [x] Analyser les dépendances du useEffect dans active-session.tsx
+  - Dépendances: [currentSession, router, sendNotification, triggerAlert]
+  - Problème: sendNotification et triggerAlert changent à chaque render
+- [x] Mémoïser sendNotification avec useCallback dans useNotifications
+  - sendNotification, scheduleNotification, cancelNotification, cancelAllNotifications
+  - Tous mémoïsés avec useCallback()
+- [x] Mémoïser triggerAlert avec useCallback dans app-context
+  - Dépendances: [state.currentSession, state.settings, sendNotification]
+- [x] Vérifier que le timer ne se recrée plus à chaque render
+  - 0 erreur TypeScript
+  - Serveur dev stable
+- [ ] Tester sur Expo Go
