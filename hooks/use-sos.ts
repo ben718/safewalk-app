@@ -18,7 +18,6 @@ export interface SOSResult {
 
 export interface UseSOSOptions {
   sessionId: string;
-  userId: number;
   onSuccess?: (result: SOSResult) => void;
   onError?: (error: Error) => void;
   location?: { latitude: number; longitude: number; accuracy?: number };
@@ -29,7 +28,7 @@ export interface UseSOSOptions {
  * Envoie SMS immédiatement à tous les contacts d'urgence avec position GPS
  */
 export function useSOS(options: UseSOSOptions) {
-  const { sessionId, userId, onSuccess, onError, location: initialLocation } = options;
+  const { sessionId, onSuccess, onError, location: initialLocation } = options;
   const { sendNotification } = useNotifications();
   const { getSnapshot } = useRealTimeLocation({ enabled: true });
   const { settings, currentSession } = useApp();
@@ -175,7 +174,7 @@ export function useSOS(options: UseSOSOptions) {
     } finally {
       setIsLoading(false);
     }
-  }, [sessionId, userId, getSnapshot, sendNotification, settings, currentSession, onSuccess, onError, initialLocation]);
+  }, [sessionId, getSnapshot, sendNotification, settings, currentSession, onSuccess, onError, initialLocation]);
 
   return {
     triggerSOS,

@@ -27,7 +27,6 @@ export default function ActiveSessionScreen() {
   const { sendNotification, scheduleNotification, cancelNotification } = useNotifications();
   const { triggerSOS, isLoading: sosLoading } = useSOS({
     sessionId: currentSession?.id || '',
-    userId: 1,
     location: location || undefined,
     onSuccess: (result) => {
       console.log('✅ SOS envoyé avec succès:', result);
@@ -94,16 +93,17 @@ export default function ActiveSessionScreen() {
         setRemainingTime(
           `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
         );
-        // Envoyer notification 5 minutes avant l'heure limite (une seule fois)
-        const fiveMinBefore = limitTime - (5 * 60 * 1000);
-        if (now >= fiveMinBefore && now < fiveMinBefore + 5000 && !timerNotificationRef.current) {
-          timerNotificationRef.current = 'scheduled';
-          console.log('🔔 [Notification] Envoi notification "Petit check" (5 min avant deadline)');
-          sendNotification({
-            title: '⚠️ Petit check',
-            body: 'Tout va bien ? 😊 Confirme ton retour dans 5 minutes.',
-            data: { type: 'timer_warning' },
-          });
+        // Programmer notification 5 minutes avant l'heure limite (une seule fois)
+        if (!timerNotificationRef.current) {
+          const fiveMinBefore = limitTime - (5 * 60 * 1000);
+          if (fiveMinBefore > now) {
+            timerNotificationRef.current = 'scheduled';
+            scheduleNotification({
+              title: '⚠️ Petit check',
+              body: 'Tout va bien ? 😊 Confirme ton retour dans 5 minutes.',
+              data: { type: 'timer_warning' },
+            }, new Date(fiveMinBefore));
+          }
         }
       } else if (now < deadline) {
         // Entre limitTime et deadline : période de grâce
@@ -176,7 +176,11 @@ export default function ActiveSessionScreen() {
                 userName: settings.firstName,
                 location: locationRef.current || undefined,
               }).catch((error) => {
-                console.error('Erreur relance SMS:', error);
+                Alert.alert(
+                  '⚠️ Erreur SMS de relance',
+                  `Impossible d'envoyer le SMS de relance: ${error.message || 'Erreur inconnue'}`,
+                  [{ text: 'OK' }]
+                );
               });
             }
           });

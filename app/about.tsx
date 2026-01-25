@@ -36,7 +36,11 @@ export default function AboutScreen() {
    * Ouvrir l'email de support
    */
   const openSupportEmail = () => {
-    Linking.openURL('mailto:support@safewalk.app?subject=Support SafeWalk');
+    Alert.alert(
+      'Contact Support',
+      'Pour nous contacter, envoyez un email à votre adresse de support.',
+      [{ text: 'OK' }]
+    );
   };
 
   return (
@@ -73,7 +77,7 @@ export default function AboutScreen() {
 
           {/* Privacy Policy */}
           <TouchableOpacity
-            onPress={() => openLink('https://safewalk.app/privacy')}
+            onPress={() => Alert.alert('Privacy Policy', 'Voir le fichier PRIVACY_POLICY.md dans le projet.')}
             className="flex-row items-center justify-between py-4 border-b"
             style={{ borderBottomColor: colors.border }}
           >
@@ -91,7 +95,7 @@ export default function AboutScreen() {
 
           {/* Terms of Service */}
           <TouchableOpacity
-            onPress={() => openLink('https://safewalk.app/terms')}
+            onPress={() => Alert.alert('Terms of Service', 'Voir le fichier TERMS_OF_SERVICE.md dans le projet.')}
             className="flex-row items-center justify-between py-4 border-b"
             style={{ borderBottomColor: colors.border }}
           >
@@ -130,7 +134,7 @@ export default function AboutScreen() {
 
           {/* Site Web */}
           <TouchableOpacity
-            onPress={() => openLink('https://safewalk.app')}
+            onPress={() => Alert.alert('Site Web', 'Site web en construction.')}
             className="flex-row items-center justify-between py-4 border-b"
             style={{ borderBottomColor: colors.border }}
           >
