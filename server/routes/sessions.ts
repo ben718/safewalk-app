@@ -62,6 +62,36 @@ router.post("/sync", async (req, res) => {
 });
 
 /**
+ * Endpoint pour récupérer les sessions d'un utilisateur
+ */
+router.get("/user/:userId", async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const limit = req.query.limit ? parseInt(req.query.limit as string) : 50;
+    const status = req.query.status as string | undefined;
+
+    if (!userId) {
+      res.status(400).json({ ok: false, error: "Missing userId" });
+      return;
+    }
+
+    const { getUserSessions } = await import('../db');
+    const sessions = await getUserSessions(parseInt(userId), limit);
+
+    // Filtrer par status si spécifié
+    const filteredSessions = status
+      ? sessions.filter(s => s.status === status)
+      : sessions;
+
+    console.log(`✅ [API] Retrieved ${filteredSessions.length} sessions for user ${userId}`);
+    res.json({ ok: true, sessions: filteredSessions });
+  } catch (error: any) {
+    console.error("❌ [API] Error getting user sessions:", error);
+    res.status(500).json({ ok: false, error: error.message });
+  }
+});
+
+/**
  * Endpoint pour mettre à jour une session (extension, completion, etc.)
  */
 router.put("/:sessionId", async (req, res) => {

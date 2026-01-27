@@ -133,6 +133,46 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       if (historyStr) {
         dispatch({ type: 'SET_HISTORY', payload: JSON.parse(historyStr) });
       }
+
+      // Récupérer les sessions depuis le serveur
+      try {
+        const userId = 1; // TODO: récupérer le vrai userId depuis auth
+        const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/api/sessions/user/${userId}?status=active`);
+        
+        if (response.ok) {
+          const data = await response.json();
+          const activeSessions = data.sessions || [];
+          
+          if (activeSessions.length > 0) {
+            // Prendre la session active la plus récente
+            const serverSession = activeSessions[0];
+            
+            // Convertir les timestamps du serveur en format local
+            const localSession: Session = {
+              id: serverSession.id,
+              startTime: new Date(serverSession.startTime).getTime(),
+              limitTime: new Date(serverSession.limitTime).getTime(),
+              deadline: new Date(serverSession.deadline).getTime(),
+              note: serverSession.note || undefined,
+              status: serverSession.status as 'active' | 'returned' | 'cancelled',
+              extensionsCount: serverSession.extensionsCount || 0,
+              maxExtensions: 3,
+              checkInConfirmed: serverSession.checkInConfirmed === 1,
+              endTime: serverSession.endTime ? new Date(serverSession.endTime).getTime() : undefined,
+            };
+            
+            // Si pas de session locale ou session serveur plus récente, restaurer depuis serveur
+            if (!sessionStr || localSession.startTime > JSON.parse(sessionStr).startTime) {
+              console.log('✅ Session active restaurée depuis le serveur');
+              dispatch({ type: 'SET_SESSION', payload: localSession });
+              await AsyncStorage.setItem('safewalk_session', JSON.stringify(localSession));
+            }
+          }
+        }
+      } catch (error) {
+        console.warn('⚠️ Échec récupération sessions serveur:', error);
+        // Continuer avec les données locales si le serveur est inaccessible
+      }
     } catch (error) {
       console.error('Erreur lors du chargement des données:', error);
     }
@@ -295,6 +335,27 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     dispatch({ type: 'SET_HISTORY', payload: newHistory });
     await AsyncStorage.removeItem('safewalk_session');
     await AsyncStorage.setItem('safewalk_history', JSON.stringify(newHistory));
+    
+    // Synchroniser avec le serveur backend
+    try {
+      const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/api/sessions/${cancelledSession.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          status: 'cancelled',
+          endTime: cancelledSession.endTime ? new Date(cancelledSession.endTime) : new Date(),
+          updatedAt: new Date(),
+        }),
+      });
+      
+      if (response.ok) {
+        console.log('✅ Session annulée synchronisée avec le serveur');
+      } else {
+        console.warn('⚠️ Échec synchronisation annulation:', await response.text());
+      }
+    } catch (error) {
+      console.error('❌ Erreur synchronisation annulation:', error);
+    }
   };
 
   const triggerAlert = useCallback(async (location?: { latitude: number; longitude: number }) => {

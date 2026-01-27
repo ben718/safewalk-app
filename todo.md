@@ -1778,3 +1778,32 @@
 - [ ] Tester endSession() et vérifier que la session est marquée comme terminée côté serveur
 - [ ] Tester addTimeToSession() et vérifier que la deadline est mise à jour côté serveur
 - [ ] Vérifier que le session monitor ne surveille plus les sessions terminées
+
+
+## SYNCHRONISATION CANCELSESSION + RÉCUPÉRATION SESSIONS AU DÉMARRAGE
+
+### Objectif
+- Synchroniser cancelSession() avec le serveur pour marquer les sessions annulées
+- Récupérer les sessions depuis le serveur au démarrage de l'app
+- Restaurer une session active si l'app a été fermée pendant une session en cours
+
+### Phase 1 : Synchronisation cancelSession()
+- [x] Ajouter appel PUT /api/sessions/:sessionId dans cancelSession()
+- [x] Envoyer status: 'cancelled' et endTime au serveur
+- [x] Gérer les erreurs de synchronisation
+
+### Phase 2 : Endpoint GET sessions utilisateur
+- [x] Créer endpoint GET /api/sessions/user/:userId
+- [x] Retourner toutes les sessions de l'utilisateur (avec limite)
+- [x] Filtrer par status si nécessaire
+
+### Phase 3 : Récupération sessions au démarrage
+- [x] Ajouter appel GET /api/sessions/user/:userId dans loadData()
+- [x] Détecter si une session active existe côté serveur
+- [x] Restaurer la session active dans l'état local si trouvée
+- [x] Synchroniser avec AsyncStorage
+
+### Tests
+- [ ] Tester cancelSession() et vérifier que la session est marquée comme annulée côté serveur
+- [ ] Démarrer session, fermer app, rouvrir → vérifier que la session est restaurée
+- [ ] Vérifier que les notifications sont reprogrammées après restauration
