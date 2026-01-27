@@ -215,6 +215,27 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     dispatch({ type: 'SET_HISTORY', payload: newHistory });
     await AsyncStorage.removeItem('safewalk_session');
     await AsyncStorage.setItem('safewalk_history', JSON.stringify(newHistory));
+    
+    // Synchroniser avec le serveur backend
+    try {
+      const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/api/sessions/${returnedSession.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          status: 'returned',
+          endTime: returnedSession.endTime ? new Date(returnedSession.endTime) : new Date(),
+          updatedAt: new Date(),
+        }),
+      });
+      
+      if (response.ok) {
+        console.log('✅ Session terminée synchronisée avec le serveur');
+      } else {
+        console.warn('⚠️ Échec synchronisation fin de session:', await response.text());
+      }
+    } catch (error) {
+      console.error('❌ Erreur synchronisation fin de session:', error);
+    }
   };
 
   const addTimeToSession = async (minutes: number) => {
@@ -239,6 +260,27 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
     dispatch({ type: 'SET_SESSION', payload: updatedSession });
     await AsyncStorage.setItem('safewalk_session', JSON.stringify(updatedSession));
+    
+    // Synchroniser avec le serveur backend
+    try {
+      const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/api/sessions/${updatedSession.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          deadline: new Date(updatedSession.deadline),
+          extensionsCount: updatedSession.extensionsCount,
+          updatedAt: new Date(),
+        }),
+      });
+      
+      if (response.ok) {
+        console.log('✅ Extension de session synchronisée avec le serveur');
+      } else {
+        console.warn('⚠️ Échec synchronisation extension:', await response.text());
+      }
+    } catch (error) {
+      console.error('❌ Erreur synchronisation extension:', error);
+    }
   };
 
   const cancelSession = async () => {

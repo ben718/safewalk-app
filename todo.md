@@ -1755,3 +1755,26 @@
 - app/active-session.tsx (listener + handleExtendSession)
 - lib/context/app-context.tsx (fonction extendSession)
 - server/services/background-tasks.ts (nouveau fichier pour tâches background)
+
+
+## SYNCHRONISATION ENDSESSION ET ADDTIME AVEC SERVEUR
+
+### Objectif
+- Synchroniser endSession() avec le serveur pour marquer la session comme terminée
+- Synchroniser addTimeToSession() avec le serveur pour mettre à jour la deadline
+- Garantir la cohérence des données entre l'app et le serveur
+
+### Phase 1 : Synchronisation endSession()
+- [x] Ajouter appel PUT /api/sessions/:sessionId dans endSession()
+- [x] Envoyer status: 'returned' et endTime au serveur
+- [x] Gérer les erreurs de synchronisation
+
+### Phase 2 : Synchronisation addTimeToSession()
+- [x] Ajouter appel PUT /api/sessions/:sessionId dans addTimeToSession()
+- [x] Envoyer nouvelle deadline et extensionsCount au serveur
+- [x] Gérer les erreurs de synchronisation
+
+### Tests
+- [ ] Tester endSession() et vérifier que la session est marquée comme terminée côté serveur
+- [ ] Tester addTimeToSession() et vérifier que la deadline est mise à jour côté serveur
+- [ ] Vérifier que le session monitor ne surveille plus les sessions terminées
