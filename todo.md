@@ -1887,3 +1887,22 @@
 - [x] Utiliser Linking.openSettings() pour rediriger vers paramètres app
 - [x] Gérer les différences iOS/Android
 - [x] Tester la redirection
+
+
+## CORRECTIONS SÉCURITÉ CRITIQUES
+
+### Vulnérabilité 1 : CORS trop permissif
+- [x] Créer liste d'origins autorisés (Expo dev server, localhost)
+- [x] Modifier middleware CORS pour vérifier l'origin
+- [x] Rejeter les requêtes d'origins non autorisés
+
+### Vulnérabilité 2 : Pas de rate limiting
+- [x] Installer express-rate-limit
+- [x] Configurer rate limiter (max 5 requêtes/minute par IP)
+- [x] Appliquer sur /api/sos/trigger
+- [x] Ajouter message d'erreur explicite si limite dépassée
+
+### Vulnérabilité 3 : Pas de validation des données
+- [x] Créer schéma de validation Zod pour /api/sos/trigger
+- [x] Valider firstName, emergencyContacts, latitude, longitude
+- [x] Retourner erreur 400 si validation échoue

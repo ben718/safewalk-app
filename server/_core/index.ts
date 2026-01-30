@@ -27,18 +27,33 @@ async function startServer() {
   const app = express();
   const server = createServer(app);
 
-  // Enable CORS for all routes - reflect the request origin to support credentials
+  // Liste des origins autorisés (SÉCURITÉ)
+  const allowedOrigins = [
+    'https://8081-irwl1yzlwbswmhi7zu2m2-c84b8aca.us1.manus.computer',
+    'http://localhost:8081',
+    'http://127.0.0.1:8081',
+    'exp://localhost:8081',
+    'exp://127.0.0.1:8081',
+  ];
+
+  // CORS restreint aux origins autorisés uniquement
   app.use((req, res, next) => {
     const origin = req.headers.origin;
-    if (origin) {
+    
+    // Vérifier si l'origin est autorisé
+    if (origin && allowedOrigins.includes(origin)) {
       res.header("Access-Control-Allow-Origin", origin);
+      res.header("Access-Control-Allow-Credentials", "true");
+    } else if (origin) {
+      console.warn(`[SECURITY] Requête bloquée depuis origin non autorisé: ${origin}`);
+      // Ne pas définir les headers CORS pour les origins non autorisés
     }
+    
     res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
     res.header(
       "Access-Control-Allow-Headers",
       "Origin, X-Requested-With, Content-Type, Accept, Authorization",
     );
-    res.header("Access-Control-Allow-Credentials", "true");
 
     // Handle preflight requests
     if (req.method === "OPTIONS") {
