@@ -1,3 +1,4 @@
+import { logger } from "../utils/logger";
 import { Router, Request, Response } from 'express';
 import { sendFriendlyAlertSMSToMultiple } from '../services/friendly-sms';
 
@@ -19,7 +20,7 @@ router.post('/alert', async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'userName and limitTimeStr required' });
     }
 
-    console.log(`📤 Envoi d'alertes SMS friendly à ${contacts.length} contact(s)...`);
+    logger.debug(`📤 Envoi d'alertes SMS friendly à ${contacts.length} contact(s)...`);
 
     const results = await sendFriendlyAlertSMSToMultiple(
       contacts,
@@ -31,7 +32,7 @@ router.post('/alert', async (req: Request, res: Response) => {
 
     return res.status(200).json({ success: true, results });
   } catch (error) {
-    console.error('❌ Erreur SMS friendly:', error);
+    logger.error('❌ Erreur SMS friendly:', error);
     return res.status(500).json({ error: 'Failed to send SMS' });
   }
 });
@@ -52,7 +53,7 @@ router.post('/follow-up', async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'userName required' });
     }
 
-    console.log(`📤 Envoi de relances SMS friendly à ${contacts.length} contact(s)...`);
+    logger.debug(`📤 Envoi de relances SMS friendly à ${contacts.length} contact(s)...`);
 
     const { sendFollowUpAlertSMSToMultiple } = await import('../services/friendly-sms');
     const results = await sendFollowUpAlertSMSToMultiple(
@@ -63,7 +64,7 @@ router.post('/follow-up', async (req: Request, res: Response) => {
 
     return res.status(200).json({ success: true, results });
   } catch (error) {
-    console.error('❌ Erreur relance SMS:', error);
+    logger.error('❌ Erreur relance SMS:', error);
     return res.status(500).json({ error: 'Failed to send follow-up SMS' });
   }
 });
@@ -84,7 +85,7 @@ router.post('/confirmation', async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'userName required' });
     }
 
-    console.log(`📤 Envoi de confirmations SMS à ${contacts.length} contact(s)...`);
+    logger.debug(`📤 Envoi de confirmations SMS à ${contacts.length} contact(s)...`);
 
     const { sendConfirmationSMSToMultiple } = await import('../services/friendly-sms');
     const results = await sendConfirmationSMSToMultiple(
@@ -94,7 +95,7 @@ router.post('/confirmation', async (req: Request, res: Response) => {
 
     return res.status(200).json({ success: true, results });
   } catch (error) {
-    console.error('❌ Erreur SMS confirmation:', error);
+    logger.error('❌ Erreur SMS confirmation:', error);
     return res.status(500).json({ error: 'Failed to send confirmation SMS' });
   }
 });

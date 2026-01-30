@@ -1,3 +1,4 @@
+import { logger } from "@/lib/utils/logger";
 import React, { useState } from 'react';
 import { View, Text, Pressable, Modal, Alert } from 'react-native';
 import { useColors } from '@/hooks/use-colors';
@@ -20,18 +21,18 @@ export function SOSButton({ onPress, isLoading = false, disabled = false, classN
   const [showConfirmation, setShowConfirmation] = useState(false);
 
   const handleSOSPress = async () => {
-    console.log('🚨 [SOSButton] Bouton SOS cliqué');
+    logger.debug('🚨 [SOSButton] Bouton SOS cliqué');
     
     // Haptic feedback intense
     try {
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
-      console.log('✅ [SOSButton] Haptic feedback OK');
+      logger.debug('✅ [SOSButton] Haptic feedback OK');
     } catch (err) {
-      console.log('⚠️ [SOSButton] Haptic feedback échoué:', err);
+      logger.debug('⚠️ [SOSButton] Haptic feedback échoué:', err);
     }
 
     // Afficher la confirmation
-    console.log('📱 [SOSButton] Affichage modale de confirmation');
+    logger.debug('📱 [SOSButton] Affichage modale de confirmation');
     setShowConfirmation(true);
   };
 

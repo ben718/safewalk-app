@@ -1,3 +1,4 @@
+import { logger } from "@/lib/utils/logger";
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { Appearance, View, useColorScheme as useSystemColorScheme } from "react-native";
 import { colorScheme as nativewindColorScheme, vars } from "nativewind";
@@ -61,7 +62,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     }),
     [colorScheme, setColorScheme],
   );
-  console.log(value, themeVariables)
+  logger.debug('Theme variables:', value, themeVariables)
 
   return (
     <ThemeContext.Provider value={value}>

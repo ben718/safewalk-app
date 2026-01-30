@@ -1,3 +1,4 @@
+import { logger } from "@/lib/utils/logger";
 import { View, Text, Pressable, Switch, Alert, ScrollView, ActivityIndicator } from 'react-native';
 import { router } from 'expo-router';
 import { BubbleBackground } from '@/components/ui/bubble-background';
@@ -181,11 +182,11 @@ export default function SettingsScreen() {
 
     try {
       // Vérifier la santé de l'API d'abord
-      console.log('🔍 Vérification API SMS...');
+      logger.debug('🔍 Vérification API SMS...');
       const health = await checkHealth();
       
       if (!health.ok) {
-        console.error('❌ API SMS non accessible');
+        logger.error('❌ API SMS non accessible');
         setToastMessage('❌ API non accessible');
         setShowToast(true);
         setIsSendingTestSms(false);
@@ -193,14 +194,14 @@ export default function SettingsScreen() {
       }
 
       if (!health.twilioConfigured) {
-        console.error('❌ Twilio non configuré');
+        logger.error('❌ Twilio non configuré');
         setToastMessage('❌ Twilio non configuré');
         setShowToast(true);
         setIsSendingTestSms(false);
         return;
       }
 
-      console.log('✅ API SMS OK, envoi du SMS de test...');
+      logger.debug('✅ API SMS OK, envoi du SMS de test...');
 
       // Envoyer le SMS de test via sendEmergencySMS
       const result = await sendEmergencySMS({
@@ -211,14 +212,14 @@ export default function SettingsScreen() {
       });
 
       if (result.ok) {
-        console.log('✅ SMS de test envoyé avec succès:', result.sid);
+        logger.debug('✅ SMS de test envoyé avec succès:', result.sid);
         setToastMessage(`✅ SMS envoyé à ${contactName || contactPhone}`);
       } else {
-        console.error('❌ Échec envoi SMS:', result.error);
+        logger.error('❌ Échec envoi SMS:', result.error);
         setToastMessage(`❌ Échec: ${result.error}`);
       }
     } catch (error: any) {
-      console.error('❌ Erreur test SMS:', error);
+      logger.error('❌ Erreur test SMS:', error);
       setToastMessage(`❌ Erreur: ${error.message}`);
     } finally {
       setIsSendingTestSms(false);

@@ -1,3 +1,4 @@
+import { logger } from "../utils/logger";
 import { Router, Request, Response } from 'express';
 import twilio from 'twilio';
 
@@ -35,14 +36,14 @@ router.get('/health', (req: Request, res: Response) => {
  * }
  */
 router.post('/send', async (req: Request, res: Response) => {
-  console.log('📨 [SMS] Requête reçue:', { to: req.body.to, messageLength: req.body.message?.length });
+  logger.debug('📨 [SMS] Requête reçue:', { to: req.body.to, messageLength: req.body.message?.length });
   
   try {
     const { to, message } = req.body;
 
     // Validation des paramètres
     if (!to || !message) {
-      console.error('❌ [SMS] Paramètres manquants:', { to: !!to, message: !!message });
+      logger.error('❌ [SMS] Paramètres manquants:', { to: !!to, message: !!message });
       return res.status(400).json({
         ok: false,
         error: 'Missing required fields: to, message',
@@ -51,15 +52,15 @@ router.post('/send', async (req: Request, res: Response) => {
 
     // Vérifier les credentials Twilio
     if (!process.env.TWILIO_ACCOUNT_SID || !process.env.TWILIO_AUTH_TOKEN || !process.env.TWILIO_PHONE_NUMBER) {
-      console.error('❌ [SMS] Credentials Twilio manquantes');
+      logger.error('❌ [SMS] Credentials Twilio manquantes');
       return res.status(500).json({
         ok: false,
         error: 'Twilio credentials not configured',
       });
     }
 
-    console.log(`📤 [SMS] Envoi SMS à ${to}...`);
-    console.log(`📝 [SMS] Message: ${message.substring(0, 50)}...`);
+    logger.debug(`📤 [SMS] Envoi SMS à ${to}...`);
+    logger.debug(`📝 [SMS] Message: ${message.substring(0, 50)}...`);
 
     // Envoyer le SMS via Twilio
     const result = await twilioClient.messages.create({
@@ -68,15 +69,15 @@ router.post('/send', async (req: Request, res: Response) => {
       to: to,
     });
 
-    console.log(`✅ [SMS] SMS envoyé avec succès`);
-    console.log(`   SID: ${result.sid}`);
-    console.log(`   Status: ${result.status}`);
-    console.log(`   To: ${result.to}`);
-    console.log(`   From: ${result.from}`);
-    console.log(`   ErrorCode: ${result.errorCode || 'none'}`);
-    console.log(`   ErrorMessage: ${result.errorMessage || 'none'}`);
-    console.log(`   Price: ${result.price || 'pending'}`);
-    console.log(`   PriceUnit: ${result.priceUnit || 'pending'}`);
+    logger.debug(`✅ [SMS] SMS envoyé avec succès`);
+    logger.debug(`   SID: ${result.sid}`);
+    logger.debug(`   Status: ${result.status}`);
+    logger.debug(`   To: ${result.to}`);
+    logger.debug(`   From: ${result.from}`);
+    logger.debug(`   ErrorCode: ${result.errorCode || 'none'}`);
+    logger.debug(`   ErrorMessage: ${result.errorMessage || 'none'}`);
+    logger.debug(`   Price: ${result.price || 'pending'}`);
+    logger.debug(`   PriceUnit: ${result.priceUnit || 'pending'}`);
 
     return res.status(200).json({
       ok: true,
@@ -87,7 +88,7 @@ router.post('/send', async (req: Request, res: Response) => {
       errorMessage: result.errorMessage,
     });
   } catch (error: any) {
-    console.error('❌ [SMS] Erreur Twilio:', error);
+    logger.error('❌ [SMS] Erreur Twilio:', error);
     
     // Extraire les détails de l'erreur Twilio
     const errorDetails = {

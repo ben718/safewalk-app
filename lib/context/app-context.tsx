@@ -4,6 +4,7 @@ import * as Notifications from 'expo-notifications';
 import { sendFriendlyAlertSMS } from '../services/friendly-sms-client';
 import { sendFollowUpAlertSMS, sendConfirmationSMS } from '../services/follow-up-sms-client';
 import { useNotifications } from '@/hooks/use-notifications';
+import { logger } from '@/lib/utils/logger';
 
 export interface UserSettings {
   firstName: string;
@@ -138,7 +139,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
       // Les sessions sont gérées uniquement en local (AsyncStorage)
     } catch (error) {
-      console.error('Erreur lors du chargement des données:', error);
+      logger.error('Erreur lors du chargement des données:', error);
     }
   };
 
@@ -197,7 +198,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     // CORRECTION BUG #4: Gérer les extensions séparément
     // Vérifier si on peut ajouter une extension
     if (state.currentSession.extensionsCount >= state.currentSession.maxExtensions) {
-      console.warn('Nombre maximum d\'extensions atteint');
+      logger.warn('Nombre maximum d\'extensions atteint');
       return;
     }
 
@@ -230,10 +231,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   };
 
   const triggerAlert = useCallback(async (location?: { latitude: number; longitude: number }) => {
-    console.log('🚨 [triggerAlert] Début de triggerAlert');
-    console.log('📋 [triggerAlert] Settings:', state.settings);
-    console.log('📋 [triggerAlert] Session:', state.currentSession);
-    console.log('📋 [triggerAlert] Location:', location);
+    logger.debug('🚨 [triggerAlert] Début de triggerAlert');
+    logger.debug('📋 [triggerAlert] Settings:', state.settings);
+    logger.debug('📋 [triggerAlert] Session:', state.currentSession);
+    logger.debug('📋 [triggerAlert] Location:', location);
     
     if (!state.currentSession) return;
     
@@ -256,7 +257,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     
     // Vérifier qu'il y a au moins un contact
     if (!state.settings.emergencyContactPhone && !state.settings.emergencyContact2Phone) {
-      console.error('❌ [triggerAlert] AUCUN CONTACT CONFIGURÉ ! Les SMS ne seront pas envoyés.');
+      logger.error('❌ [triggerAlert] AUCUN CONTACT CONFIGURÉ ! Les SMS ne seront pas envoyés.');
       return;
     }
 
@@ -282,7 +283,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         minute: '2-digit',
       });
 
-      console.log('📤 [triggerAlert] Envoi requête /api/sos/trigger...');
+      logger.debug('📤 [triggerAlert] Envoi requête /api/sos/trigger...');
       const response = await fetch('https://3000-irwl1yzlwbswmhi7zu2m2-c84b8aca.us1.manus.computer/api/sos/trigger', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -297,12 +298,12 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
       const result = await response.json();
       if (result.success) {
-        console.log('✅ [triggerAlert] SMS envoyés avec succès:', result.smsResults);
+        logger.debug('✅ [triggerAlert] SMS envoyés avec succès:', result.smsResults);
       } else {
-        console.error('❌ [triggerAlert] Échec envoi SMS:', result.error);
+        logger.error('❌ [triggerAlert] Échec envoi SMS:', result.error);
       }
     } catch (error) {
-      console.error('❌ [triggerAlert] Exception lors de l\'envoi des SMS:', error);
+      logger.error('❌ [triggerAlert] Exception lors de l\'envoi des SMS:', error);
     }
   }, [state.currentSession, state.settings, sendNotification]);
 
@@ -313,7 +314,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
     // CORRECTION BUG #3: Ne pas déclencher l'alerte si check-in confirmé
     if (state.currentSession.checkInConfirmed) {
-      console.log('Check-in confirmé, pas d\'alerte');
+      logger.debug('Check-in confirmé, pas d\'alerte');
       return;
     }
 
@@ -371,7 +372,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
           });
         }
       } catch (error) {
-        console.error('Erreur lors de l\'envoi du SMS de confirmation:', error);
+        logger.error('Erreur lors de l\'envoi du SMS de confirmation:', error);
       }
     }
   };

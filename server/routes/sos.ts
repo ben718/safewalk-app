@@ -1,3 +1,4 @@
+import { logger } from "../utils/logger";
 import { Router, Request, Response } from "express";
 import { rateLimit } from "express-rate-limit";
 import { z } from "zod";
@@ -42,7 +43,7 @@ router.post("/trigger", sosLimiter, async (req: Request, res: Response) => {
     const validation = sosRequestSchema.safeParse(req.body);
     
     if (!validation.success) {
-      console.error('[SOS] Validation échouée:', validation.error.issues);
+      logger.error('[SOS] Validation échouée:', validation.error.issues);
       return res.status(400).json({
         success: false,
         error: "Données invalides",
@@ -58,7 +59,7 @@ router.post("/trigger", sosLimiter, async (req: Request, res: Response) => {
       limitTime 
     } = validation.data;
 
-    console.log('[SOS] Requête reçue:', { firstName, emergencyContacts, latitude, longitude });
+    logger.debug('[SOS] Requête reçue:', { firstName, emergencyContacts, latitude, longitude });
 
     // Utiliser le système SMS friendly pour SOS
     const location = latitude && longitude ? { latitude, longitude } : undefined;
@@ -67,7 +68,7 @@ router.post("/trigger", sosLimiter, async (req: Request, res: Response) => {
       minute: '2-digit',
     });
 
-    console.log(`[SOS] Envoi SMS friendly à ${emergencyContacts.length} contact(s)...`);
+    logger.debug(`[SOS] Envoi SMS friendly à ${emergencyContacts.length} contact(s)...`);
 
     const smsResults = await sendFriendlyAlertSMSToMultiple(
       emergencyContacts,
@@ -89,7 +90,7 @@ router.post("/trigger", sosLimiter, async (req: Request, res: Response) => {
       timestamp: Date.now(),
     });
   } catch (error) {
-    console.error("[SOS] Erreur:", error);
+    logger.error("[SOS] Erreur:", error);
     res.status(500).json({
       success: false,
       error: "Erreur lors du déclenchement de l'alerte SOS",

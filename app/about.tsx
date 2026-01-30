@@ -1,3 +1,4 @@
+import { logger } from "@/lib/utils/logger";
 import { ScrollView, Text, View, TouchableOpacity, Linking, Platform, Alert } from 'react-native';
 import { router } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
@@ -28,7 +29,7 @@ export default function AboutScreen() {
         await WebBrowser.openBrowserAsync(url);
       }
     } catch (error) {
-      console.error('Erreur ouverture lien:', error);
+      logger.error('Erreur ouverture lien:', error);
     }
   };
 

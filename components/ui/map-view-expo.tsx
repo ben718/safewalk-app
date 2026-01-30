@@ -1,3 +1,4 @@
+import { logger } from "@/lib/utils/logger";
 import React from 'react';
 import { View, Text, Pressable, Linking, Share } from 'react-native';
 import { useColors } from '@/hooks/use-colors';
@@ -32,7 +33,7 @@ export function MapViewComponent({ latitude, longitude, accuracy, className }: M
       try {
         await Linking.openURL(googleMapsUrl);
       } catch (err) {
-        console.error('Impossible d\'ouvrir Google Maps:', err);
+        logger.error('Impossible d\'ouvrir Google Maps:', err);
       }
     }
   };
@@ -45,7 +46,7 @@ export function MapViewComponent({ latitude, longitude, accuracy, className }: M
       try {
         await Linking.openURL(googleMapsUrl);
       } catch (err) {
-        console.error('Impossible d\'ouvrir Apple Maps:', err);
+        logger.error('Impossible d\'ouvrir Apple Maps:', err);
       }
     }
   };
@@ -53,7 +54,7 @@ export function MapViewComponent({ latitude, longitude, accuracy, className }: M
   const handleCopyCoordinates = async () => {
     const coordinates = `${latitude}, ${longitude}`;
     await Clipboard.setStringAsync(coordinates);
-    console.log('✅ Coordonnées copiées:', coordinates);
+    logger.debug('✅ Coordonnées copiées:', coordinates);
   };
 
   const handleShareLocation = async () => {
@@ -64,7 +65,7 @@ export function MapViewComponent({ latitude, longitude, accuracy, className }: M
         url: googleMapsUrl,
       });
     } catch (error) {
-      console.error('Erreur lors du partage:', error);
+      logger.error('Erreur lors du partage:', error);
     }
   };
 

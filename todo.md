@@ -1906,3 +1906,21 @@
 - [x] Créer schéma de validation Zod pour /api/sos/trigger
 - [x] Valider firstName, emergencyContacts, latitude, longitude
 - [x] Retourner erreur 400 si validation échoue
+
+
+## AMÉLIORATIONS QUALITÉ CODE (30 janvier 2026)
+
+### Phase 1 : Système de logging propre
+- [x] Créer lib/utils/logger.ts avec niveaux debug/info/warn/error
+- [x] Créer server/utils/logger.ts pour le backend
+- [x] Désactiver automatiquement les logs en production (NODE_ENV)
+- [x] Remplacer tous les console.log par logger.debug()
+- [x] Remplacer tous les console.warn par logger.warn()
+- [x] Remplacer tous les console.error par logger.error()
+- [x] 85+ occurrences remplacées dans 11 fichiers frontend
+- [x] 20+ occurrences remplacées dans 4 fichiers backend
+
+### Phase 2 : useKeepAwake pour sessions actives
+- [x] Importer useKeepAwake depuis expo-keep-awake
+- [x] Ajouter useKeepAwake() dans active-session.tsx
+- [x] L'écran ne s'éteindra plus pendant une session active

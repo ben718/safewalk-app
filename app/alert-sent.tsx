@@ -1,3 +1,4 @@
+import { logger } from "@/lib/utils/logger";
 import { ScrollView, Text, View, Pressable, Linking } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -20,7 +21,7 @@ export default function AlertSentScreen() {
   const handleCopyMapLink = async (link: string) => {
     await Clipboard.setStringAsync(link);
     // Toast feedback
-    console.log('Lien copié:', link);
+    logger.debug('Lien copié:', link);
   };
 
   const handleCallContact = () => {

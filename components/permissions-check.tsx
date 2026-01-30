@@ -1,3 +1,4 @@
+import { logger } from "@/lib/utils/logger";
 import { useEffect, useState } from 'react';
 import { Alert, Platform } from 'react-native';
 import * as Notifications from 'expo-notifications';
@@ -29,7 +30,7 @@ export function PermissionsCheck() {
       const { status: existingStatus } = await Notifications.getPermissionsAsync();
       
       if (existingStatus === 'granted') {
-        console.log('✅ Permissions notifications déjà accordées');
+        logger.debug('✅ Permissions notifications déjà accordées');
         await AsyncStorage.setItem(PERMISSIONS_KEY, 'true');
         setChecked(true);
         return;
@@ -45,10 +46,10 @@ export function PermissionsCheck() {
       const { status } = await Notifications.requestPermissionsAsync();
       
       if (status === 'granted') {
-        console.log('✅ Permissions notifications accordées');
+        logger.debug('✅ Permissions notifications accordées');
         await AsyncStorage.setItem(PERMISSIONS_KEY, 'true');
       } else {
-        console.warn('⚠️ Permissions notifications refusées');
+        logger.warn('⚠️ Permissions notifications refusées');
         
         // Afficher une alerte pour expliquer l'importance
         Alert.alert(
@@ -76,7 +77,7 @@ export function PermissionsCheck() {
       
       setChecked(true);
     } catch (error) {
-      console.error('❌ Erreur vérification permissions:', error);
+      logger.error('❌ Erreur vérification permissions:', error);
       setChecked(true);
     }
   };

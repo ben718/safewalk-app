@@ -1,3 +1,4 @@
+import { logger } from "@/lib/utils/logger";
 import { View, Text, Pressable, ScrollView } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -69,7 +70,7 @@ export default function OnboardingScreen() {
       await AsyncStorage.setItem('onboarding_completed', 'true');
       router.replace('/');
     } catch (error) {
-      console.error('Error saving onboarding state:', error);
+      logger.error('Error saving onboarding state:', error);
     }
   };
 

@@ -1,3 +1,4 @@
+import { logger } from "../utils/logger";
 import "dotenv/config";
 import express from "express";
 import { createServer } from "http";
@@ -45,7 +46,7 @@ async function startServer() {
       res.header("Access-Control-Allow-Origin", origin);
       res.header("Access-Control-Allow-Credentials", "true");
     } else if (origin) {
-      console.warn(`[SECURITY] Requête bloquée depuis origin non autorisé: ${origin}`);
+      logger.warn(`[SECURITY] Requête bloquée depuis origin non autorisé: ${origin}`);
       // Ne pas définir les headers CORS pour les origins non autorisés
     }
     
@@ -76,11 +77,11 @@ async function startServer() {
   const port = await findAvailablePort(preferredPort);
 
   if (port !== preferredPort) {
-    console.log(`Port ${preferredPort} is busy, using port ${port} instead`);
+    logger.debug(`Port ${preferredPort} is busy, using port ${port} instead`);
   }
 
   server.listen(port, '0.0.0.0', () => {
-    console.log(`[api] server listening on port ${port}`);
+    logger.debug(`[api] server listening on port ${port}`);
   });
 }
 

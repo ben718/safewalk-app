@@ -1,3 +1,4 @@
+import { logger } from "@/lib/utils/logger";
 import { View, Text, ScrollView, Alert, Pressable } from 'react-native';
 import { BubbleBackground } from '@/components/ui/bubble-background';
 import { GlassCard } from '@/components/ui/glass-card';
@@ -18,8 +19,12 @@ import { useRouter } from 'expo-router';
 import { useEffect, useState, useRef } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Notifications from 'expo-notifications';
+import { useKeepAwake } from 'expo-keep-awake';
 
 export default function ActiveSessionScreen() {
+  // Empêcher l'écran de s'éteindre pendant la session
+  useKeepAwake();
+  
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { currentSession, endSession, cancelSession, addTimeToSession, confirmCheckIn, settings, triggerAlert } = useApp();
@@ -31,7 +36,7 @@ export default function ActiveSessionScreen() {
     sessionId: currentSession?.id || '',
     location: location || undefined,
     onSuccess: (result) => {
-      console.log('✅ SOS envoyé avec succès:', result);
+      logger.debug('✅ SOS envoyé avec succès:', result);
       // Afficher une notification de succès
       sendNotification({
         title: '✅ SOS envoyé',
@@ -40,7 +45,7 @@ export default function ActiveSessionScreen() {
       });
     },
     onError: (error) => {
-      console.error('❌ Erreur SOS:', error);
+      logger.error('❌ Erreur SOS:', error);
       // Afficher une notification d'erreur
       sendNotification({
         title: '❌ Erreur SOS',
@@ -79,19 +84,19 @@ export default function ActiveSessionScreen() {
   useEffect(() => {
     const subscription = Notifications.addNotificationResponseReceivedListener(async (response) => {
       const actionId = response.actionIdentifier;
-      console.log('👆 Action notification:', actionId);
+      logger.debug('👆 Action notification:', actionId);
 
       if (actionId === 'confirm_safe') {
         // L'utilisateur a cliqué sur "Je suis rentré" dans la notification
-        console.log('✅ Confirmation depuis notification');
+        logger.debug('✅ Confirmation depuis notification');
         await handleCompleteSession();
       } else if (actionId === 'extend_session') {
         // L'utilisateur a cliqué sur "+15 min" dans la notification
-        console.log('⏰ Extension depuis notification');
+        logger.debug('⏰ Extension depuis notification');
         await handleExtendSession();
       } else if (actionId === 'trigger_sos') {
         // L'utilisateur a cliqué sur "SOS" dans la notification
-        console.log('🚨 SOS depuis notification');
+        logger.debug('🚨 SOS depuis notification');
         await triggerSOS();
       }
     });
@@ -200,7 +205,7 @@ export default function ActiveSessionScreen() {
         // Envoyer notification d'alerte ET SMS dès que la deadline est dépassée
         if (!alertNotificationRef.current) {
           alertNotificationRef.current = 'triggered';
-          console.log('🔔 [Notification] Envoi notification d\'alerte (deadline dépassée)');
+          logger.debug('🔔 [Notification] Envoi notification d\'alerte (deadline dépassée)');
           sendNotification({
             title: '🚨 Oups… on a prévenu ton contact',
             body: '😬 Confirme si tout va bien.',
@@ -218,14 +223,14 @@ export default function ActiveSessionScreen() {
         const tenMinAfterDeadline = deadline + (10 * 60 * 1000);
         if (now >= tenMinAfterDeadline && !followUpSMSRef.current && !currentSession.checkInConfirmed) {
           followUpSMSRef.current = 'sent';
-          console.log('📤 Envoi SMS de relance...');
+          logger.debug('📤 Envoi SMS de relance...');
           // Importer et appeler sendFollowUpAlertSMS avec garde-fou anti-spam
           Promise.all([
             import('@/lib/services/follow-up-sms-client'),
             import('@/lib/utils')
           ]).then(([{ sendFollowUpAlertSMS }, { canSendSMS }]) => {
             if (!canSendSMS('followup', 60)) {
-              console.warn('🚫 SMS de relance bloqué par anti-spam');
+              logger.warn('🚫 SMS de relance bloqué par anti-spam');
               return;
             }
             const contacts = [];
@@ -270,12 +275,12 @@ export default function ActiveSessionScreen() {
   const handleCompleteSession = async () => {
     // Capturer la position GPS si activée
     if (settings.locationEnabled && location) {
-      console.log('Position capturée:', location);
+      logger.debug('Position capturée:', location);
     }
 
     // Si une alerte a été envoyée, envoyer un SMS de confirmation
     if (sessionState === 'overdue' && alertSMSRef.current) {
-      console.log('📤 Envoi SMS de confirmation "Je suis rentré"...');
+      logger.debug('📤 Envoi SMS de confirmation "Je suis rentré"...');
       try {
         const { sendEmergencySMS } = await import('@/lib/services/sms-service');
         const result = await sendEmergencySMS({
@@ -288,17 +293,17 @@ export default function ActiveSessionScreen() {
         });
         
         if (result.ok) {
-          console.log('✅ SMS de confirmation envoyé:', result.sid);
+          logger.debug('✅ SMS de confirmation envoyé:', result.sid);
           sendNotification({
             title: '✅ Contact rassuré',
             body: `${settings.emergencyContactName} a été informé que vous êtes bien rentré`,
             data: { type: 'confirmation_sent' },
           });
         } else {
-          console.error('❌ Échec envoi SMS confirmation:', result.error);
+          logger.error('❌ Échec envoi SMS confirmation:', result.error);
         }
       } catch (error) {
-        console.error('❌ Erreur lors de l\'envoi du SMS de confirmation:', error);
+        logger.error('❌ Erreur lors de l\'envoi du SMS de confirmation:', error);
       }
     }
 
@@ -309,7 +314,7 @@ export default function ActiveSessionScreen() {
   const handleExtendSession = async () => {
     await addTimeToSession(15);
     // Afficher un toast de confirmation
-    console.log('🔔 [Notification] Envoi notification d\'extension (+15 min)');
+    logger.debug('🔔 [Notification] Envoi notification d\'extension (+15 min)');
     sendNotification({
       title: '✅ +15 minutes ajoutées',
       body: 'Nouvelle heure limite : ' + new Date(currentSession!.deadline + 15 * 60 * 1000).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
@@ -332,7 +337,7 @@ export default function ActiveSessionScreen() {
   const handleCheckInConfirm = async () => {
     // Capturer la position GPS si activée
     if (settings.locationEnabled && location) {
-      console.log('Position capturée au check-in:', location);
+      logger.debug('Position capturée au check-in:', location);
     }
     setShowCheckInModal(false);
     await confirmCheckInNotif();
@@ -352,7 +357,7 @@ export default function ActiveSessionScreen() {
             await cancelAllNotifications();
             // Capturer la position GPS si activée
             if (settings.locationEnabled && location) {
-              console.log('Position capturée:', location);
+              logger.debug('Position capturée:', location);
             }
             await cancelSession();
             router.push('/');
