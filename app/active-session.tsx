@@ -6,6 +6,7 @@ import { CushionPillButton } from '@/components/ui/cushion-pill-button';
 import { TimerAnimation } from '@/components/ui/timer-animation';
 import { ScreenTransition } from '@/components/ui/screen-transition';
 import { CheckInModal } from '@/components/ui/check-in-modal';
+import { BackgroundWarningModal, shouldShowBackgroundWarning } from '@/components/background-warning-modal';
 import { useApp } from '@/lib/context/app-context';
 import { useCheckInNotifications } from '@/hooks/use-check-in-notifications';
 import { useRealTimeLocation } from '@/hooks/use-real-time-location';
@@ -51,12 +52,24 @@ export default function ActiveSessionScreen() {
   const [remainingTime, setRemainingTime] = useState<string>('00:00:00');
   const [sessionState, setSessionState] = useState<'active' | 'grace' | 'overdue'>('active');
   const [showCheckInModal, setShowCheckInModal] = useState(false);
+  const [showWarningModal, setShowWarningModal] = useState(false);
   const timerNotificationRef = useRef<string | null>(null);
   const alertNotificationRef = useRef<string | null>(null);
   const alertSMSRef = useRef<string | null>(null); // Track si SMS d'alerte envoyé
   const followUpSMSRef = useRef<string | null>(null); // Track si SMS de relance envoyé
   const locationRef = useRef(location); // Ref pour accéder à la dernière valeur de location
   
+  // Afficher le modal d'avertissement au démarrage
+  useEffect(() => {
+    const checkWarning = async () => {
+      const shouldShow = await shouldShowBackgroundWarning();
+      if (shouldShow) {
+        setShowWarningModal(true);
+      }
+    };
+    checkWarning();
+  }, []);
+
   // Mettre à jour la ref quand location change (sans redéclencher le timer)
   useEffect(() => {
     locationRef.current = location;
@@ -388,6 +401,12 @@ export default function ActiveSessionScreen() {
           onConfirmCheckIn={handleConfirmCheckIn}
           onAddTime={handleCheckInAddTime}
           onClose={() => setShowCheckInModal(false)}
+        />
+
+        {/* Background Warning Modal */}
+        <BackgroundWarningModal
+          visible={showWarningModal}
+          onClose={() => setShowWarningModal(false)}
         />
         
         {/* Header */}

@@ -1847,13 +1847,11 @@
 - [x] Supprimer server/services/session-monitor.ts
 - [x] Supprimer server/routes/sessions.ts
 - [x] Supprimer drizzle/schema.ts (table sessions)
-- [x] Retirer le démarrage du monitor dans server/_core/index.ts
-
-### Phase 3 : Simplifier backend
+- [x] Retirer le démarrage du monitor dans server/_core/index.ts### Phase 3 : Simplifier backend
 - [x] Garder uniquement server/services/sms-service.ts
 - [x] Garder uniquement server/services/twilio.ts
-- [ ] Créer endpoint simple POST /api/sms/send
-- [ ] Retirer toutes les dépendances inutiles (drizzle, db)
+- [x] Créer endpoint simple POST /api/sms/send
+- [x] Retirer toutes les dépendances inutiles (drizzle, db)
 
 ### Phase 4 : Nettoyer UI
 - [x] Retirer l'indicateur de synchronisation (☁️) de active-session.tsx
@@ -1863,4 +1861,21 @@
 ### Phase 5 : Tests
 - [ ] Vérifier que les SMS s'envoient correctement
 - [ ] Vérifier que la géolocalisation fonctionne
-- [ ] Tester le flux complet sans synchronisation
+- [ ] Tester app en mode local uniquementronisation
+
+
+## ADAPTATION API SOS + ÉCRAN AVERTISSEMENT
+
+### Phase 1 : Adapter l'appel API /api/sos/trigger
+- [x] Modifier triggerAlert() dans app-context.tsx
+- [x] Envoyer firstName depuis les préférences utilisateur
+- [x] Envoyer emergencyContacts (tableau avec name et phone)
+- [x] Envoyer latitude, longitude, limitTime
+- [x] Retirer sessionId et userId de la requête
+
+### Phase 2 : Écran d'avertissement mode arrière-plan
+- [x] Créer composant BackgroundWarningModal
+- [x] Afficher au démarrage de session (avant timer)
+- [x] Expliquer : garder app en arrière-plan, activer notifications, désactiver économie d'énergie
+- [x] Bouton "J'ai compris" pour continuer
+- [x] Option "Ne plus afficher" avec AsyncStorage

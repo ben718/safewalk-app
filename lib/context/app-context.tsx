@@ -260,48 +260,46 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       return;
     }
 
-    // Envoyer SMS via sendEmergencySMS
-    const { sendEmergencySMS } = await import('@/lib/services/sms-service');
-    const { cleanPhoneNumber } = await import('@/lib/utils');
-    
+    // Préparer les contacts d'urgence
+    const emergencyContacts: Array<{ name: string; phone: string }> = [];
+    if (state.settings.emergencyContactPhone) {
+      emergencyContacts.push({
+        name: state.settings.emergencyContactName || 'Contact',
+        phone: state.settings.emergencyContactPhone,
+      });
+    }
+    if (state.settings.emergencyContact2Phone) {
+      emergencyContacts.push({
+        name: state.settings.emergencyContact2Name || 'Contact 2',
+        phone: state.settings.emergencyContact2Phone,
+      });
+    }
+
+    // Envoyer SMS via /api/sos/trigger
     try {
-      // Envoyer au contact 1
-      if (state.settings.emergencyContactPhone) {
-        const cleanedPhone1 = cleanPhoneNumber(state.settings.emergencyContactPhone);
-        console.log('📤 [triggerAlert] Envoi SMS au contact 1:', cleanedPhone1);
-        const result1 = await sendEmergencySMS({
-          reason: 'alert',
-          contactName: state.settings.emergencyContactName || 'Contact',
-          contactPhone: cleanedPhone1,
+      const limitTimeStr = new Date(state.currentSession.limitTime).toLocaleTimeString('fr-FR', {
+        hour: '2-digit',
+        minute: '2-digit',
+      });
+
+      console.log('📤 [triggerAlert] Envoi requête /api/sos/trigger...');
+      const response = await fetch('https://3000-irwl1yzlwbswmhi7zu2m2-c84b8aca.us1.manus.computer/api/sos/trigger', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
           firstName: state.settings.firstName,
-          note: state.currentSession.note,
-          location,
-        });
-        
-        if (result1.ok) {
-          console.log('✅ [triggerAlert] SMS envoyé au contact 1 (SID:', result1.sid, ')');
-        } else {
-          console.error('❌ [triggerAlert] Échec envoi SMS au contact 1:', result1.error);
-        }
-      }
-      
-      // Envoyer au contact 2
-      if (state.settings.emergencyContact2Phone) {
-        console.log('📤 [triggerAlert] Envoi SMS au contact 2...');
-        const result2 = await sendEmergencySMS({
-          reason: 'alert',
-          contactName: state.settings.emergencyContact2Name || 'Contact 2',
-          contactPhone: state.settings.emergencyContact2Phone,
-          firstName: state.settings.firstName,
-          note: state.currentSession.note,
-          location,
-        });
-        
-        if (result2.ok) {
-          console.log('✅ [triggerAlert] SMS envoyé au contact 2 (SID:', result2.sid, ')');
-        } else {
-          console.error('❌ [triggerAlert] Échec envoi SMS au contact 2:', result2.error);
-        }
+          emergencyContacts,
+          latitude: location?.latitude,
+          longitude: location?.longitude,
+          limitTime: limitTimeStr,
+        }),
+      });
+
+      const result = await response.json();
+      if (result.success) {
+        console.log('✅ [triggerAlert] SMS envoyés avec succès:', result.smsResults);
+      } else {
+        console.error('❌ [triggerAlert] Échec envoi SMS:', result.error);
       }
     } catch (error) {
       console.error('❌ [triggerAlert] Exception lors de l\'envoi des SMS:', error);
