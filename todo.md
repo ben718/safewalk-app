@@ -1833,3 +1833,34 @@
 - [x] Mettre à jour syncStatus lors des appels API
 - [x] Afficher icône dans active-session.tsx (☁️ synced, 🔄 syncing, ⚠️ offline)
 - [x] Afficher toast si synchronisation échoue
+
+
+## SIMPLIFICATION ARCHITECTURE - APP LOCALE + SMS BACKEND
+
+### Phase 1 : Supprimer synchronisation sessions
+- [x] Retirer tous les appels fetch() vers /api/sessions/* dans app-context.tsx
+- [x] Supprimer syncStatus de AppContext
+- [x] Retirer la récupération des sessions au démarrage (loadData)
+- [x] Nettoyer startSession, endSession, addTimeToSession, cancelSession
+
+### Phase 2 : Supprimer base de données et session monitor
+- [x] Supprimer server/services/session-monitor.ts
+- [x] Supprimer server/routes/sessions.ts
+- [x] Supprimer drizzle/schema.ts (table sessions)
+- [x] Retirer le démarrage du monitor dans server/_core/index.ts
+
+### Phase 3 : Simplifier backend
+- [x] Garder uniquement server/services/sms-service.ts
+- [x] Garder uniquement server/services/twilio.ts
+- [ ] Créer endpoint simple POST /api/sms/send
+- [ ] Retirer toutes les dépendances inutiles (drizzle, db)
+
+### Phase 4 : Nettoyer UI
+- [x] Retirer l'indicateur de synchronisation (☁️) de active-session.tsx
+- [x] Supprimer syncStatus de l'interface
+- [x] Nettoyer les imports inutilisés
+
+### Phase 5 : Tests
+- [ ] Vérifier que les SMS s'envoient correctement
+- [ ] Vérifier que la géolocalisation fonctionne
+- [ ] Tester le flux complet sans synchronisation

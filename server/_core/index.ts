@@ -2,11 +2,7 @@ import "dotenv/config";
 import express from "express";
 import { createServer } from "http";
 import net from "net";
-import { createExpressMiddleware } from "@trpc/server/adapters/express";
-import { registerOAuthRoutes } from "./oauth";
 import apiRoutes from "./api-routes";
-import { appRouter } from "../routers";
-import { createContext } from "./context";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise((resolve) => {
@@ -55,20 +51,11 @@ async function startServer() {
   app.use(express.json({ limit: "50mb" }));
   app.use(express.urlencoded({ limit: "50mb", extended: true }));
 
-  registerOAuthRoutes(app);
   app.use("/api", apiRoutes);
 
   app.get("/api/health", (_req, res) => {
     res.json({ ok: true, timestamp: Date.now() });
   });
-
-  app.use(
-    "/api/trpc",
-    createExpressMiddleware({
-      router: appRouter,
-      createContext,
-    }),
-  );
 
   const preferredPort = parseInt(process.env.PORT || "3000");
   const port = await findAvailablePort(preferredPort);
@@ -79,13 +66,6 @@ async function startServer() {
 
   server.listen(port, '0.0.0.0', () => {
     console.log(`[api] server listening on port ${port}`);
-    
-    // Démarrer le moniteur de sessions
-    import('../services/session-monitor').then(({ startSessionMonitor }) => {
-      startSessionMonitor();
-    }).catch(err => {
-      console.error('❌ Failed to start session monitor:', err);
-    });
   });
 }
 

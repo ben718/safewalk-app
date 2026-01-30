@@ -1,7 +1,5 @@
 import { Router, Request, Response } from "express";
 import { sendFriendlyAlertSMSToMultiple } from "../services/friendly-sms";
-import * as db from "../db";
-import crypto from "crypto";
 
 const router = Router();
 
@@ -12,78 +10,27 @@ const router = Router();
  */
 router.post("/trigger", async (req: Request, res: Response) => {
   try {
-    const { sessionId, userId, latitude, longitude, accuracy } = req.body;
+    const { 
+      firstName, 
+      emergencyContacts, 
+      latitude, 
+      longitude, 
+      limitTime 
+    } = req.body;
 
-    console.log('[SOS] Requête reçue:', { sessionId, userId, latitude, longitude, accuracy });
+    console.log('[SOS] Requête reçue:', { firstName, emergencyContacts, latitude, longitude });
 
-    if (!sessionId || !userId) {
-      console.error('[SOS] Erreur: sessionId ou userId manquant');
+    if (!firstName || !emergencyContacts || emergencyContacts.length === 0) {
+      console.error('[SOS] Erreur: données manquantes');
       return res.status(400).json({
         success: false,
-        error: "sessionId et userId sont requis",
-      });
-    }
-
-    // Récupérer la session (ou créer une session par défaut)
-    let session = await db.getSession(sessionId);
-    if (!session) {
-      console.log('[SOS] Création session par défaut');
-      const now = new Date();
-      const defaultSession = {
-        id: sessionId,
-        userId,
-        startTime: now,
-        limitTime: new Date(now.getTime() + 60 * 60 * 1000),
-        deadline: new Date(now.getTime() + 75 * 60 * 1000),
-        tolerance: 15,
-        status: 'active' as const,
-      };
-      session = await db.upsertSession(defaultSession);
-      if (!session) {
-        return res.status(500).json({
-          success: false,
-          error: "Impossible de créer la session",
-        });
-      }
-    }
-
-    // Récupérer les préférences utilisateur pour les contacts d'urgence
-    let preferences = await db.getUserPreferences(userId);
-    
-    // Si pas de préférences, créer les préférences par défaut
-    if (!preferences) {
-      console.log('[SOS] Création des préférences par défaut pour userId:', userId);
-      // Pas de préférences par défaut - l'utilisateur DOIT configurer ses contacts
-      return res.status(400).json({
-        success: false,
-        error: "Aucun contact d'urgence configuré. Veuillez configurer vos contacts dans les paramètres.",
-      });
-    }
-
-    const emergencyContacts: Array<{ name: string; phone: string }> = [];
-    if (preferences.emergencyContact1Phone) {
-      emergencyContacts.push({
-        name: preferences.emergencyContact1Name || '',
-        phone: preferences.emergencyContact1Phone,
-      });
-    }
-    if (preferences.emergencyContact2Phone) {
-      emergencyContacts.push({
-        name: preferences.emergencyContact2Name || "",
-        phone: preferences.emergencyContact2Phone,
-      });
-    }
-
-    if (emergencyContacts.length === 0) {
-      return res.status(400).json({
-        success: false,
-        error: "Aucun contact d'urgence configuré",
+        error: "firstName et emergencyContacts sont requis",
       });
     }
 
     // Utiliser le système SMS friendly pour SOS
     const location = latitude && longitude ? { latitude, longitude } : undefined;
-    const limitTimeStr = session.limitTime.toLocaleTimeString('fr-FR', {
+    const limitTimeStr = limitTime || new Date().toLocaleTimeString('fr-FR', {
       hour: '2-digit',
       minute: '2-digit',
     });
@@ -92,50 +39,17 @@ router.post("/trigger", async (req: Request, res: Response) => {
 
     const smsResults = await sendFriendlyAlertSMSToMultiple(
       emergencyContacts,
-      preferences.firstName || 'Utilisateur',
+      firstName,
       limitTimeStr,
       '🚨 ALERTE SOS IMMÉDIATE',
       location
     );
 
-    // Enregistrer les logs SMS en base de données
-    for (const result of smsResults) {
-      const smsLogId = crypto.randomUUID();
-      await db.saveSmsLog({
-        id: smsLogId,
-        sessionId,
-        phoneNumber: result.phone,
-        message: `SOS Alert to ${result.phone}`,
-        status: result.status as 'sent' | 'failed',
-        messageSid: result.messageSid,
-      });
-    }
-
-    // Sauvegarder la position GPS si fournie
-    if (latitude && longitude) {
-      const positionId = crypto.randomUUID();
-      await db.savePosition({
-        id: positionId,
-        sessionId,
-        latitude,
-        longitude,
-        accuracy,
-      });
-    }
-
-    // Mettre à jour la session pour marquer l'alerte SOS
-    await db.upsertSession({
-      ...session,
-      status: "overdue",
-      alertTriggeredAt: new Date(),
-      updatedAt: new Date(),
-    });
-
     res.json({
       success: true,
       message: "Alerte SOS déclenchée",
       smsResults: smsResults.map(r => ({
-        contact: emergencyContacts.find(c => c.phone === r.phone)?.name || 'Unknown',
+        contact: emergencyContacts.find((c: any) => c.phone === r.phone)?.name || 'Unknown',
         phone: r.phone,
         messageSid: r.messageSid,
         status: r.status,

@@ -16,7 +16,6 @@ import {
 } from "react-native-safe-area-context";
 import type { EdgeInsets, Metrics, Rect } from "react-native-safe-area-context";
 
-import { trpc, createTRPCClient } from "@/lib/trpc";
 import { initManusRuntime, subscribeSafeAreaInsets } from "@/lib/_core/manus-runtime";
 import { AppProvider } from "@/lib/context/app-context";
 import { PermissionsCheck } from "@/components/permissions-check";
@@ -62,7 +61,7 @@ export default function RootLayout() {
         },
       }),
   );
-  const [trpcClient] = useState(() => createTRPCClient());
+
 
   // Ensure minimum 8px padding for top and bottom on mobile
   const providerInitialMetrics = useMemo(() => {
@@ -79,10 +78,9 @@ export default function RootLayout() {
 
   const content = (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <trpc.Provider client={trpcClient} queryClient={queryClient}>
-        <QueryClientProvider client={queryClient}>
-          <AppProvider>
-            <PermissionsCheck />
+      <QueryClientProvider client={queryClient}>
+        <AppProvider>
+          <PermissionsCheck />
             {/* Stack with all routes - flow screens without nav */}
             {/* Expo Router Stack uses default slide animation from right */}
             <Stack
@@ -109,9 +107,8 @@ export default function RootLayout() {
               <Stack.Screen name="oauth/callback" />
             </Stack>
             <StatusBar style="auto" />
-          </AppProvider>
-        </QueryClientProvider>
-      </trpc.Provider>
+        </AppProvider>
+      </QueryClientProvider>
     </GestureHandlerRootView>
   );
 

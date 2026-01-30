@@ -42,13 +42,10 @@ export interface Session {
   checkInSecondNotifTime?: number; // timestamp de la 2e notification check-in
 }
 
-export type SyncStatus = 'synced' | 'syncing' | 'offline';
-
 export interface AppContextType {
   settings: UserSettings;
   currentSession: Session | null;
   history: Session[];
-  syncStatus: SyncStatus;
   updateSettings: (settings: Partial<UserSettings>) => Promise<void>;
   startSession: (limitTime: number, note?: string) => Promise<void>;
   endSession: () => Promise<void>;
@@ -77,19 +74,16 @@ type Action =
   | { type: 'SET_SETTINGS'; payload: UserSettings }
   | { type: 'SET_SESSION'; payload: Session | null }
   | { type: 'SET_HISTORY'; payload: Session[] }
-  | { type: 'UPDATE_SESSION'; payload: Partial<Session> }
-  | { type: 'SET_SYNC_STATUS'; payload: SyncStatus };
+  | { type: 'UPDATE_SESSION'; payload: Partial<Session> };
 
 interface State {
   settings: UserSettings;
-  syncStatus: SyncStatus;
   currentSession: Session | null;
   history: Session[];
 }
 
 const initialState: State = {
   settings: defaultSettings,
-  syncStatus: 'synced',
   currentSession: null,
   history: [],
 };
@@ -109,8 +103,7 @@ function appReducer(state: State, action: Action): State {
           ? { ...state.currentSession, ...action.payload }
           : null,
       };
-    case 'SET_SYNC_STATUS':
-      return { ...state, syncStatus: action.payload };
+
     default:
       return state;
   }
@@ -143,113 +136,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         dispatch({ type: 'SET_HISTORY', payload: JSON.parse(historyStr) });
       }
 
-      // Récupérer les sessions depuis le serveur
-      try {
-        const userId = 1; // TODO: récupérer le vrai userId depuis auth
-        const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/api/sessions/user/${userId}?status=active`);
-        
-        if (response.ok) {
-          const data = await response.json();
-          const activeSessions = data.sessions || [];
-          
-          if (activeSessions.length > 0) {
-            // Prendre la session active la plus récente
-            const serverSession = activeSessions[0];
-            
-            // Convertir les timestamps du serveur en format local
-            const localSession: Session = {
-              id: serverSession.id,
-              startTime: new Date(serverSession.startTime).getTime(),
-              limitTime: new Date(serverSession.limitTime).getTime(),
-              deadline: new Date(serverSession.deadline).getTime(),
-              note: serverSession.note || undefined,
-              status: serverSession.status as 'active' | 'returned' | 'cancelled',
-              extensionsCount: serverSession.extensionsCount || 0,
-              maxExtensions: 3,
-              checkInConfirmed: serverSession.checkInConfirmed === 1,
-              endTime: serverSession.endTime ? new Date(serverSession.endTime).getTime() : undefined,
-            };
-            
-            // Si pas de session locale ou session serveur plus récente, restaurer depuis serveur
-            if (!sessionStr || localSession.startTime > JSON.parse(sessionStr).startTime) {
-              console.log('✅ Session active restaurée depuis le serveur');
-              dispatch({ type: 'SET_SESSION', payload: localSession });
-              await AsyncStorage.setItem('safewalk_session', JSON.stringify(localSession));
-              
-              // CORRECTION CRITIQUE : Reprogrammer les notifications après restauration
-              // On doit reprogrammer les 4 notifications comme dans active-session.tsx
-              const now = Date.now();
-              const { limitTime, deadline } = localSession;
-              
-              // 1. Notification 5 min avant l'heure limite
-              const fiveMinBefore = limitTime - (5 * 60 * 1000);
-              if (fiveMinBefore > now) {
-                await Notifications.scheduleNotificationAsync({
-                  content: {
-                    title: '⚠️ Petit check',
-                    body: 'Tout va bien ? 😊 Confirme ton retour dans 5 minutes.',
-                    data: { type: 'timer_warning', sessionId: localSession.id },
-                    sound: 'default',
-                    badge: 1,
-                  },
-                  trigger: { type: 'date' as const, date: new Date(fiveMinBefore) } as any,
-                });
-              }
-              
-              // 2. Notification à la deadline (heure limite)
-              if (limitTime > now) {
-                await Notifications.scheduleNotificationAsync({
-                  content: {
-                    title: '⏰ Heure de retour dépassée',
-                    body: 'Confirme que tout va bien ! Sinon tes contacts seront alertés dans 15 min.',
-                    data: { type: 'deadline_reached', sessionId: localSession.id },
-                    sound: 'default',
-                    badge: 1,
-                    categoryIdentifier: 'session_alert',
-                  },
-                  trigger: { type: 'date' as const, date: new Date(limitTime) } as any,
-                });
-              }
-              
-              // 3. Notification à la deadline finale (avant alerte)
-              const deadlineWarning = deadline - (2 * 60 * 1000);
-              if (deadlineWarning > now) {
-                await Notifications.scheduleNotificationAsync({
-                  content: {
-                    title: '🚨 Dernière chance',
-                    body: 'Tes contacts seront alertés dans 2 minutes ! Confirme maintenant.',
-                    data: { type: 'final_warning', sessionId: localSession.id },
-                    sound: 'default',
-                    badge: 1,
-                    categoryIdentifier: 'session_alert',
-                  },
-                  trigger: { type: 'date' as const, date: new Date(deadlineWarning) } as any,
-                });
-              }
-              
-              // 4. Notification quand l'alerte est déclenchée
-              if (deadline > now) {
-                await Notifications.scheduleNotificationAsync({
-                  content: {
-                    title: '🚨 Alerte déclenchée',
-                    body: 'Tes contacts d\'urgence ont été alertés. Confirme que tout va bien.',
-                    data: { type: 'alert_triggered', sessionId: localSession.id },
-                    sound: 'default',
-                    badge: 1,
-                    categoryIdentifier: 'session_alert',
-                  },
-                  trigger: { type: 'date' as const, date: new Date(deadline) } as any,
-                });
-              }
-              
-              console.log('✅ Notifications reprogrammées après restauration');
-            }
-          }
-        }
-      } catch (error) {
-        console.warn('⚠️ Échec récupération sessions serveur:', error);
-        // Continuer avec les données locales si le serveur est inaccessible
-      }
+      // Les sessions sont gérées uniquement en local (AsyncStorage)
     } catch (error) {
       console.error('Erreur lors du chargement des données:', error);
     }
@@ -288,40 +175,6 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
     dispatch({ type: 'SET_SESSION', payload: session });
     await AsyncStorage.setItem('safewalk_session', JSON.stringify(session));
-    
-    // Synchroniser avec le serveur backend
-    dispatch({ type: 'SET_SYNC_STATUS', payload: 'syncing' });
-    try {
-      const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/api/sessions/sync`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          id: session.id,
-          userId: 1, // TODO: récupérer le vrai userId depuis auth
-          startTime: new Date(session.startTime),
-          limitTime: new Date(session.limitTime),
-          deadline: new Date(session.deadline),
-          status: session.status,
-          note: session.note,
-          extensionsCount: session.extensionsCount,
-          checkInConfirmed: session.checkInConfirmed ? 1 : 0,
-          emergencyContactName: state.settings.emergencyContactName,
-          emergencyContactPhone: state.settings.emergencyContactPhone,
-          firstName: state.settings.firstName,
-        }),
-      });
-      
-      if (response.ok) {
-        console.log('✅ Session synchronisée avec le serveur');
-        dispatch({ type: 'SET_SYNC_STATUS', payload: 'synced' });
-      } else {
-        console.warn('⚠️ Échec synchronisation session:', await response.text());
-        dispatch({ type: 'SET_SYNC_STATUS', payload: 'offline' });
-      }
-    } catch (error) {
-      console.error('❌ Erreur synchronisation session:', error);
-      dispatch({ type: 'SET_SYNC_STATUS', payload: 'offline' });
-    }
   };
 
   const endSession = async () => {
@@ -336,31 +189,6 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     dispatch({ type: 'SET_HISTORY', payload: newHistory });
     await AsyncStorage.removeItem('safewalk_session');
     await AsyncStorage.setItem('safewalk_history', JSON.stringify(newHistory));
-    
-    // Synchroniser avec le serveur backend
-    dispatch({ type: 'SET_SYNC_STATUS', payload: 'syncing' });
-    try {
-      const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/api/sessions/${returnedSession.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          status: 'returned',
-          endTime: returnedSession.endTime ? new Date(returnedSession.endTime) : new Date(),
-          updatedAt: new Date(),
-        }),
-      });
-      
-      if (response.ok) {
-        console.log('✅ Session terminée synchronisée avec le serveur');
-        dispatch({ type: 'SET_SYNC_STATUS', payload: 'synced' });
-      } else {
-        console.warn('⚠️ Échec synchronisation fin session:', await response.text());
-        dispatch({ type: 'SET_SYNC_STATUS', payload: 'offline' });
-      }
-    } catch (error) {
-      console.error('❌ Erreur synchronisation fin session:', error);
-      dispatch({ type: 'SET_SYNC_STATUS', payload: 'offline' });
-    }
   };
 
   const addTimeToSession = async (minutes: number) => {
@@ -385,31 +213,6 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
     dispatch({ type: 'SET_SESSION', payload: updatedSession });
     await AsyncStorage.setItem('safewalk_session', JSON.stringify(updatedSession));
-    
-    // Synchroniser avec le serveur backend
-    dispatch({ type: 'SET_SYNC_STATUS', payload: 'syncing' });
-    try {
-      const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/api/sessions/${updatedSession.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          deadline: new Date(updatedSession.deadline),
-          extensionsCount: updatedSession.extensionsCount,
-          updatedAt: new Date(),
-        }),
-      });
-      
-      if (response.ok) {
-        console.log('✅ Extension de session synchronisée avec le serveur');
-        dispatch({ type: 'SET_SYNC_STATUS', payload: 'synced' });
-      } else {
-        console.warn('⚠️ Échec synchronisation extension:', await response.text());
-        dispatch({ type: 'SET_SYNC_STATUS', payload: 'offline' });
-      }
-    } catch (error) {
-      console.error('❌ Erreur synchronisation extension:', error);
-      dispatch({ type: 'SET_SYNC_STATUS', payload: 'offline' });
-    }
   };
 
   const cancelSession = async () => {
@@ -424,31 +227,6 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     dispatch({ type: 'SET_HISTORY', payload: newHistory });
     await AsyncStorage.removeItem('safewalk_session');
     await AsyncStorage.setItem('safewalk_history', JSON.stringify(newHistory));
-    
-    // Synchroniser avec le serveur backend
-    dispatch({ type: 'SET_SYNC_STATUS', payload: 'syncing' });
-    try {
-      const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/api/sessions/${cancelledSession.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          status: 'cancelled',
-          endTime: cancelledSession.endTime ? new Date(cancelledSession.endTime) : new Date(),
-          updatedAt: new Date(),
-        }),
-      });
-      
-      if (response.ok) {
-        console.log('✅ Session annulée synchronisée avec le serveur');
-        dispatch({ type: 'SET_SYNC_STATUS', payload: 'synced' });
-      } else {
-        console.warn('⚠️ Échec synchronisation annulation:', await response.text());
-        dispatch({ type: 'SET_SYNC_STATUS', payload: 'offline' });
-      }
-    } catch (error) {
-      console.error('❌ Erreur synchronisation annulation:', error);
-      dispatch({ type: 'SET_SYNC_STATUS', payload: 'offline' });
-    }
   };
 
   const triggerAlert = useCallback(async (location?: { latitude: number; longitude: number }) => {
@@ -630,7 +408,6 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     settings: state.settings,
     currentSession: state.currentSession,
     history: state.history,
-    syncStatus: state.syncStatus,
     updateSettings,
     startSession,
     endSession,
