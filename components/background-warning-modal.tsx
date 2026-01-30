@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Modal, View, Text, Pressable, ScrollView } from 'react-native';
+import { Modal, View, Text, Pressable, ScrollView, Linking, Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useColors } from '@/hooks/use-colors';
 
@@ -131,25 +131,56 @@ export function BackgroundWarningModal({ visible, onClose }: BackgroundWarningMo
               </Text>
             </Pressable>
 
-            {/* Bouton "J'ai compris" */}
-            <Pressable
-              onPress={handleClose}
-              style={({ pressed }) => ({
-                backgroundColor: colors.primary,
-                paddingVertical: 16,
-                borderRadius: 12,
-                opacity: pressed ? 0.8 : 1,
-              })}
-            >
-              <Text style={{
-                color: '#fff',
-                fontSize: 16,
-                fontWeight: '600',
-                textAlign: 'center',
-              }}>
-                J'ai compris
-              </Text>
-            </Pressable>
+            {/* Boutons */}
+            <View style={{ gap: 12 }}>
+              {/* Bouton "Ouvrir les paramètres" */}
+              <Pressable
+                onPress={() => {
+                  if (Platform.OS === 'ios') {
+                    Linking.openURL('app-settings:');
+                  } else {
+                    Linking.openSettings();
+                  }
+                }}
+                style={({ pressed }) => ({
+                  backgroundColor: colors.surface,
+                  paddingVertical: 16,
+                  borderRadius: 12,
+                  borderWidth: 2,
+                  borderColor: colors.primary,
+                  opacity: pressed ? 0.8 : 1,
+                })}
+              >
+                <Text style={{
+                  color: colors.primary,
+                  fontSize: 16,
+                  fontWeight: '600',
+                  textAlign: 'center',
+                }}>
+                  ⚙️ Ouvrir les paramètres
+                </Text>
+              </Pressable>
+
+              {/* Bouton "J'ai compris" */}
+              <Pressable
+                onPress={handleClose}
+                style={({ pressed }) => ({
+                  backgroundColor: colors.primary,
+                  paddingVertical: 16,
+                  borderRadius: 12,
+                  opacity: pressed ? 0.8 : 1,
+                })}
+              >
+                <Text style={{
+                  color: '#fff',
+                  fontSize: 16,
+                  fontWeight: '600',
+                  textAlign: 'center',
+                }}>
+                  J'ai compris
+                </Text>
+              </Pressable>
+            </View>
           </ScrollView>
         </View>
       </View>

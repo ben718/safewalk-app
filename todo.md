@@ -1879,3 +1879,11 @@
 - [x] Expliquer : garder app en arrière-plan, activer notifications, désactiver économie d'énergie
 - [x] Bouton "J'ai compris" pour continuer
 - [x] Option "Ne plus afficher" avec AsyncStorage
+
+
+## BOUTON PARAMÈTRES DANS AVERTISSEMENT
+
+- [x] Ajouter bouton "Ouvrir les paramètres" dans BackgroundWarningModal
+- [x] Utiliser Linking.openSettings() pour rediriger vers paramètres app
+- [x] Gérer les différences iOS/Android
+- [x] Tester la redirection
