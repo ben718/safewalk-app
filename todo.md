@@ -1924,3 +1924,35 @@
 - [x] Importer useKeepAwake depuis expo-keep-awake
 - [x] Ajouter useKeepAwake() dans active-session.tsx
 - [x] L'écran ne s'éteindra plus pendant une session active
+
+
+## TESTS UNITAIRES VITEST (30 janvier 2026)
+
+### Phase 1 : Tests logique de session
+- [x] Créer __tests__/session-logic.test.ts
+- [x] Tester calcul de deadline (limitTime + tolerance)
+- [x] Tester calcul temps restant (deadline - now)
+- [x] Tester états de session (active, grace, overdue, returned, cancelled)
+- [x] Tester extensions (+15 min, max 3)
+- [x] Tester déclenchement alerte automatique
+- [x] Tester formatage du temps (HH:MM:SS)
+- [x] Tester gestion du jour suivant (heure limite lendemain)
+
+### Phase 2 : Tests validation et utilitaires
+- [x] Créer __tests__/validation.test.ts
+- [x] Tester validation numéro de téléphone (format E.164)
+- [x] Tester validation contact d'urgence
+- [x] Tester formatage des numéros
+- [x] Tester validation prénom utilisateur
+- [x] Tester validation coordonnées GPS
+- [x] Tester validation message SMS
+- [x] Créer __tests__/logger.test.ts
+- [x] Tester désactivation logs en production
+- [x] Tester niveaux de log (debug/info/warn/error)
+- [x] Tester logique de filtrage
+
+### Phase 3 : Exécution et validation
+- [x] Exécuter pnpm test
+- [x] 207 tests exécutés : 187 passés, 3 échecs (tests existants), 17 skippés
+- [x] Tous les nouveaux tests passent (session-logic, validation, logger)
+- [x] 0 erreur TypeScript
