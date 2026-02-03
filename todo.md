@@ -1985,3 +1985,36 @@
 - [x] Exécuter pnpm test
 - [x] 33 tests passés à 100%
 - [x] 8 groupes de tests : programmation, reprogrammation, annulation, catégories, actions, contenu, permissions, arrière-plan
+
+
+## DÉTECTION CONNECTIVITÉ RÉSEAU (3 février 2026)
+
+### Phase 1 : Hook et utilitaires
+- [x] Créer hooks/use-network-status.ts
+- [x] Détecter état réseau (WiFi, cellulaire, hors ligne)
+- [x] Détecter mode avion
+- [x] Listener de changement de connectivité
+- [x] Créer lib/utils/network-checker.ts
+- [x] Fonction checkNetworkForSMS() avant envoi SMS
+- [x] Fonction isAirplaneModeEnabled()
+- [x] Fonction waitForNetworkConnection() avec timeout
+- [x] Fonction getNetworkErrorMessage() pour messages utilisateur
+- [x] Installer @react-native-community/netinfo
+
+### Phase 2 : Intégration UI
+- [x] Intégrer useNetworkStatus dans active-session.tsx
+- [x] Afficher bannière d'avertissement pendant session si hors ligne
+- [x] Intégrer checkNetworkForSMS dans triggerAlert (app-context.tsx)
+- [x] Afficher notification si problème réseau lors de l'alerte
+- [x] Continuer le flow même si hors ligne (marquer session overdue)
+
+### Phase 3 : Tests et validation
+- [x] Créer __tests__/network-detection.test.ts
+- [x] 26 tests passés à 100%
+- [x] Tester détection des états réseau (WiFi, cellulaire, hors ligne, unknown)
+- [x] Tester vérification avant SMS (autorisation/blocage)
+- [x] Tester mode avion
+- [x] Tester messages d'erreur
+- [x] Tester changements de connectivité
+- [x] Tester timeout de reconnexion
+- [x] Tester logique canSendSMS

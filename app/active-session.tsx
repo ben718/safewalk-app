@@ -20,10 +20,15 @@ import { useEffect, useState, useRef } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Notifications from 'expo-notifications';
 import { useKeepAwake } from 'expo-keep-awake';
+import { useNetworkStatus } from '@/hooks/use-network-status';
+import { getNetworkErrorMessage } from '@/lib/utils/network-checker';
 
 export default function ActiveSessionScreen() {
   // Empêcher l'écran de s'éteindre pendant la session
   useKeepAwake();
+  
+  // Détecter l'état de la connectivité réseau
+  const networkStatus = useNetworkStatus();
   
   const router = useRouter();
   const insets = useSafeAreaInsets();
@@ -456,6 +461,34 @@ export default function ActiveSessionScreen() {
             </View>
           </View>
         </ScreenTransition>
+
+        {/* Bannière d'avertissement réseau */}
+        {networkStatus.isOffline && (
+          <ScreenTransition delay={50} duration={350}>
+            <GlassCard
+              className="mb-4"
+              style={{
+                backgroundColor: 'rgba(255, 77, 77, 0.12)',
+                borderLeftWidth: 4,
+                borderLeftColor: '#FF4D4D',
+                paddingHorizontal: 16,
+                paddingVertical: 12,
+              }}
+            >
+              <View className="flex-row items-start gap-3">
+                <Text style={{ fontSize: 24, marginTop: -2 }}>📵</Text>
+                <View className="flex-1">
+                  <Text className="text-sm font-bold text-foreground mb-1">
+                    Aucune connexion Internet
+                  </Text>
+                  <Text className="text-xs text-muted leading-relaxed">
+                    L'alerte SMS ne pourra pas être envoyée. Vérifiez votre connexion WiFi ou cellulaire.
+                  </Text>
+                </View>
+              </View>
+            </GlassCard>
+          </ScreenTransition>
+        )}
 
         {/* Timer Card */}
         <ScreenTransition delay={100} duration={350}>

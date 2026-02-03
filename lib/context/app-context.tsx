@@ -5,6 +5,7 @@ import { sendFriendlyAlertSMS } from '../services/friendly-sms-client';
 import { sendFollowUpAlertSMS, sendConfirmationSMS } from '../services/follow-up-sms-client';
 import { useNotifications } from '@/hooks/use-notifications';
 import { logger } from '@/lib/utils/logger';
+import { checkNetworkForSMS } from '@/lib/utils/network-checker';
 
 export interface UserSettings {
   firstName: string;
@@ -237,6 +238,18 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     logger.debug('📋 [triggerAlert] Location:', location);
     
     if (!state.currentSession) return;
+    
+    // Vérifier la connectivité réseau avant d'envoyer les SMS
+    const networkCheck = await checkNetworkForSMS();
+    if (!networkCheck.canSendSMS) {
+      logger.warn('⚠️ [triggerAlert] Impossible d\'envoyer SMS:', networkCheck.errorMessage);
+      sendNotification({
+        title: '⚠️ Problème de connexion',
+        body: networkCheck.errorMessage || 'Impossible d\'envoyer l\'alerte SMS. Vérifiez votre connexion.',
+        data: { type: 'network_error' },
+      });
+      // Continuer quand même pour marquer la session comme overdue
+    }
     
     // Marquer la session comme overdue
     const alertedSession: Session = {
